@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIG-SHIELD Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070d1a;
+  --surface: #0d1726;
+  --surface2: #111f35;
+  --border: rgba(99,179,237,0.1);
+  --border2: rgba(99,179,237,0.2);
+  --blue: #3b82f6;
+  --blue-bright: #60a5fa;
+  --cyan: #06b6d4;
+  --green: #10b981;
+  --red: #ef4444;
+  --orange: #f59e0b;
+  --yellow: #eab308;
+  --text: #e2e8f0;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  --mono: 'Space Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:var(--sans); display:flex; height:100vh; overflow:hidden; font-size:14px; }
+
+/* SIDEBAR */
+aside {
+  width:220px; min-width:220px;
+  background:var(--surface);
+  border-right: 1px solid var(--border);
+  display:flex; flex-direction:column;
+  padding:24px 16px;
+  position:relative; overflow:hidden;
+}
+aside::before {
+  content:''; position:absolute; top:-60px; left:-40px;
+  width:200px; height:200px;
+  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+.logo {
+  font-family:var(--mono); font-size:13px; font-weight:700;
+  color:var(--blue-bright); letter-spacing:3px;
+  padding:0 8px 20px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:8px;
+}
+.logo-dot { width:7px; height:7px; background:var(--cyan); border-radius:50%; animation:pulse 2s infinite; }
+nav { flex:1; overflow-y:auto; padding-top:16px; }
+.nav-group { margin-bottom:20px; }
+.nav-label { font-size:9px; font-family:var(--mono); color:var(--text-muted); letter-spacing:2px; text-transform:uppercase; padding:0 8px 8px; }
+.nav-btn {
+  display:flex; align-items:center; gap:10px;
+  width:100%; padding:9px 12px; border-radius:8px;
+  border:none; background:transparent; color:var(--text-dim);
+  font-family:var(--sans); font-size:13px; font-weight:500;
+  cursor:pointer; transition:all 0.2s; text-align:left;
+  position:relative; margin-bottom:2px;
+}
+.nav-btn:hover { background:rgba(59,130,246,0.08); color:var(--text); }
+.nav-btn.active { background:rgba(59,130,246,0.15); color:var(--blue-bright); }
+.nav-btn.active::before {
+  content:''; position:absolute; left:0; top:20%; height:60%; width:2px;
+  background:var(--blue); border-radius:2px;
+}
+.nav-icon { width:16px; text-align:center; font-size:13px; }
+.badge {
+  margin-left:auto; font-size:10px; font-family:var(--mono);
+  background:var(--red); color:#fff; border-radius:10px;
+  padding:1px 6px; font-weight:700; animation:badgepulse 2s infinite;
+}
+@keyframes badgepulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+.status-bar {
+  padding:12px 8px 0; border-top:1px solid var(--border);
+  display:flex; flex-direction:column; gap:4px;
+}
+.status-label { font-size:9px; font-family:var(--mono); color:var(--text-muted); letter-spacing:2px; text-transform:uppercase; }
+.status-val { font-size:11px; color:var(--green); display:flex; align-items:center; gap:6px; font-weight:600; }
+.pulse-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+/* MAIN */
+main { flex:1; overflow-y:auto; background:var(--bg); display:flex; flex-direction:column; }
+
+/* TOPBAR */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 28px; border-bottom:1px solid var(--border);
+  background:var(--surface); position:sticky; top:0; z-index:10;
+}
+.topbar-title { font-size:18px; font-weight:700; letter-spacing:-0.3px; }
+.topbar-sub { font-size:11px; color:var(--text-muted); font-family:var(--mono); margin-top:2px; }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.time-chip {
+  font-family:var(--mono); font-size:11px; color:var(--cyan);
+  background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.2);
+  padding:4px 10px; border-radius:20px;
+}
+.city-selector {
+  background:var(--surface2); border:1px solid var(--border2); color:var(--text);
+  font-family:var(--sans); font-size:12px; padding:6px 12px; border-radius:8px;
+  cursor:pointer; outline:none;
+}
+.refresh-btn {
+  background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.25);
+  color:var(--blue-bright); padding:6px 14px; border-radius:8px;
+  font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;
+  font-family:var(--sans);
+}
+.refresh-btn:hover { background:rgba(59,130,246,0.2); }
+
+/* PAGE CONTENT */
+.page { padding:24px 28px; display:none; }
+.page.active { display:block; }
+
+/* KPI GRID */
+.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.kpi-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; padding:20px; position:relative; overflow:hidden;
+  transition:border-color 0.2s, transform 0.2s;
+}
+.kpi-card:hover { border-color:var(--border2); transform:translateY(-2px); }
+.kpi-card::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+}
+.kpi-card.blue::after { background:linear-gradient(90deg,transparent,var(--blue),transparent); }
+.kpi-card.green::after { background:linear-gradient(90deg,transparent,var(--green),transparent); }
+.kpi-card.red::after { background:linear-gradient(90deg,transparent,var(--red),transparent); }
+.kpi-card.cyan::after { background:linear-gradient(90deg,transparent,var(--cyan),transparent); }
+.kpi-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
+.kpi-val { font-size:28px; font-weight:800; margin:6px 0 4px; letter-spacing:-1px; font-family:var(--mono); }
+.kpi-delta { font-size:11px; display:flex; align-items:center; gap:4px; font-weight:600; }
+.kpi-icon { position:absolute; right:16px; top:16px; font-size:20px; opacity:0.15; }
+.up { color:var(--green); } .down { color:var(--red); } .neutral { color:var(--text-muted); }
+
+/* CHART SECTION */
+.row { display:grid; gap:16px; margin-bottom:16px; }
+.row-3-1 { grid-template-columns:3fr 1fr; }
+.row-2-1 { grid-template-columns:2fr 1fr; }
+.row-2 { grid-template-columns:1fr 1fr; }
+.row-3 { grid-template-columns:1fr 1fr 1fr; }
+.card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; padding:20px;
+}
+.card-title { font-size:13px; font-weight:700; margin-bottom:4px; letter-spacing:-0.2px; }
+.card-sub { font-size:11px; color:var(--text-muted); margin-bottom:16px; }
+
+/* BAR CHART */
+.bar-chart { display:flex; align-items:flex-end; gap:6px; height:100px; }
+.bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bar {
+  width:100%; border-radius:4px 4px 0 0;
+  transition:opacity 0.2s;
+  position:relative; cursor:pointer;
+}
+.bar:hover { opacity:0.8; }
+.bar-label { font-size:9px; color:var(--text-muted); font-family:var(--mono); }
+.bar-val { font-size:9px; color:var(--text-dim); font-family:var(--mono); }
+
+/* LINE CHART */
+.line-chart-wrap { position:relative; height:120px; overflow:hidden; }
+.line-chart-svg { width:100%; height:100%; }
+
+/* ZONE TABLE */
+.zone-table { width:100%; border-collapse:collapse; }
+.zone-table th { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; font-weight:700; padding:6px 10px; text-align:left; border-bottom:1px solid var(--border); }
+.zone-table td { padding:10px 10px; border-bottom:1px solid rgba(99,179,237,0.05); font-size:12px; vertical-align:middle; }
+.zone-table tr:last-child td { border-bottom:none; }
+.zone-table tr:hover td { background:rgba(59,130,246,0.03); }
+.status-pill {
+  font-size:10px; font-weight:700; font-family:var(--mono);
+  padding:3px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px;
+}
+.pill-red { background:rgba(239,68,68,0.12); color:#f87171; border:1px solid rgba(239,68,68,0.25); }
+.pill-orange { background:rgba(245,158,11,0.12); color:#fbbf24; border:1px solid rgba(245,158,11,0.25); }
+.pill-green { background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.25); }
+.pill-blue { background:rgba(59,130,246,0.12); color:#60a5fa; border:1px solid rgba(59,130,246,0.25); }
+
+/* FRAUD CARDS */
+.fraud-item {
+  background:var(--surface2); border-radius:10px; padding:14px;
+  border-left:3px solid var(--orange); margin-bottom:10px;
+  transition:border-color 0.2s;
+}
+.fraud-item.critical { border-left-color:var(--red); }
+.fraud-item.low { border-left-color:var(--yellow); }
+.fraud-title { font-size:12px; font-weight:700; margin-bottom:4px; }
+.fraud-meta { font-size:10px; color:var(--text-dim); font-family:var(--mono); line-height:1.6; }
+.fraud-actions { display:flex; gap:6px; margin-top:10px; }
+.btn-sm {
+  font-size:10px; font-weight:700; font-family:var(--mono);
+  padding:4px 10px; border-radius:6px; border:none; cursor:pointer;
+  text-transform:uppercase; letter-spacing:0.5px; transition:all 0.15s;
+}
+.btn-red { background:rgba(239,68,68,0.15); color:#f87171; }
+.btn-red:hover { background:rgba(239,68,68,0.3); }
+.btn-yellow { background:rgba(245,158,11,0.15); color:#fbbf24; }
+.btn-yellow:hover { background:rgba(245,158,11,0.3); }
+.btn-blue { background:rgba(59,130,246,0.15); color:#60a5fa; }
+.btn-blue:hover { background:rgba(59,130,246,0.3); }
+.btn-green { background:rgba(16,185,129,0.15); color:#34d399; }
+.btn-green:hover { background:rgba(16,185,129,0.3); }
+
+/* DONUT */
+.donut-wrap { display:flex; align-items:center; justify-content:center; gap:20px; }
+.donut-legend { display:flex; flex-direction:column; gap:8px; }
+.legend-item { display:flex; align-items:center; gap:8px; font-size:11px; }
+.legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+
+/* TRIGGERS PAGE */
+.trigger-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:16px;
+  margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;
+}
+.trigger-info { flex:1; }
+.trigger-name { font-size:13px; font-weight:700; margin-bottom:2px; }
+.trigger-desc { font-size:11px; color:var(--text-muted); font-family:var(--mono); }
+.trigger-meta { display:flex; align-items:center; gap:12px; }
+.api-chip {
+  font-size:10px; font-family:var(--mono); padding:3px 8px; border-radius:6px;
+  background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); color:var(--blue-bright);
+}
+.toggle-wrap { display:flex; align-items:center; gap:8px; }
+.toggle {
+  width:36px; height:20px; background:var(--surface); border-radius:10px; border:1px solid var(--border2);
+  position:relative; cursor:pointer; transition:background 0.2s;
+}
+.toggle.on { background:rgba(16,185,129,0.3); border-color:var(--green); }
+.toggle::after {
+  content:''; position:absolute; top:2px; left:2px;
+  width:14px; height:14px; border-radius:50%; background:var(--text-muted); transition:all 0.2s;
+}
+.toggle.on::after { left:18px; background:var(--green); }
+
+/* CONFIG PAGE */
+.config-section { margin-bottom:24px; }
+.config-title { font-size:14px; font-weight:700; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.config-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(99,179,237,0.04); }
+.config-row:last-child { border-bottom:none; }
+.config-key { font-size:12px; color:var(--text-dim); }
+.config-key strong { display:block; font-size:13px; color:var(--text); font-weight:600; margin-bottom:2px; }
+.config-input {
+  background:var(--surface2); border:1px solid var(--border2); color:var(--text);
+  font-family:var(--mono); font-size:12px; padding:6px 10px; border-radius:8px;
+  width:160px; outline:none; text-align:right;
+}
+.config-input:focus { border-color:var(--blue); }
+.save-btn {
+  background:linear-gradient(135deg,var(--blue),var(--cyan)); color:#fff;
+  border:none; padding:10px 24px; border-radius:8px; font-weight:700;
+  font-size:13px; cursor:pointer; font-family:var(--sans);
+  transition:opacity 0.2s; margin-top:12px;
+}
+.save-btn:hover { opacity:0.85; }
+
+/* FEED TICKER */
+.feed-ticker {
+  display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:16px;
+}
+.feed-chip {
+  flex-shrink:0; font-size:10px; font-family:var(--mono);
+  padding:4px 10px; border-radius:20px; display:flex; align-items:center; gap:6px;
+}
+.feed-chip.live { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:#34d399; }
+.feed-chip.warn { background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); color:#fbbf24; }
+.feed-chip.err { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#f87171; }
+.feed-dot { width:5px; height:5px; border-radius:50%; animation:pulse 1.5s infinite; }
+.fd-green { background:var(--green); }
+.fd-yellow { background:var(--orange); }
+.fd-red { background:var(--red); }
+
+/* RIDER DETAIL MODAL */
+.modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(7,13,26,0.85);
+  z-index:100; align-items:center; justify-content:center; backdrop-filter:blur(4px);
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--surface); border:1px solid var(--border2); border-radius:16px;
+  padding:28px; width:500px; max-width:95vw; max-height:85vh; overflow-y:auto;
+  position:relative;
+}
+.modal-close {
+  position:absolute; top:16px; right:16px;
+  background:none; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;
+}
+.modal-title { font-size:16px; font-weight:800; margin-bottom:4px; }
+.modal-sub { font-size:11px; color:var(--text-muted); font-family:var(--mono); margin-bottom:20px; }
+.detail-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.detail-row:last-child { border-bottom:none; }
+.detail-k { color:var(--text-muted); }
+.detail-v { font-weight:600; font-family:var(--mono); }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:200;
+  background:var(--surface2); border:1px solid var(--green); color:var(--green);
+  padding:12px 18px; border-radius:10px; font-size:12px; font-weight:700;
+  font-family:var(--mono); display:none; animation:slidein 0.3s ease;
+  box-shadow:0 4px 20px rgba(16,185,129,0.15);
+}
+@keyframes slidein { from{transform:translateX(30px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* MINI SPARKLINE */
+.sparkline { height:30px; }
+
+/* RESPONSIVE */
+@media(max-width:1100px) { .kpi-grid{grid-template-columns:repeat(2,1fr);} .row-3-1{grid-template-columns:1fr;} }
+@media(max-width:800px) { aside{display:none;} .kpi-grid{grid-template-columns:1fr 1fr;} }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    GIG-SHIELD
+  </div>
+  <nav>
+    <div class="nav-group">
+      <div class="nav-label">Overview</div>
+      <button class="nav-btn active" onclick="navigate('analytics',this)">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Operations</div>
+      <button class="nav-btn" onclick="navigate('triggers',this)">
+        <span class="nav-icon">⚡</span> Live Triggers
+        <span class="badge" id="triggerBadge">3</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('fraud',this)">
+        <span class="nav-icon">🛡️</span> Fraud Monitor
+        <span class="badge" id="fraudBadge">2</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('riders',this)">
+        <span class="nav-icon">🛵</span> Riders
+      </button>
+      <button class="nav-btn" onclick="navigate('payouts',this)">
+        <span class="nav-icon">💸</span> Payouts
+      </button>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Settings</div>
+      <button class="nav-btn" onclick="navigate('config',this)">
+        <span class="nav-icon">⚙️</span> AI Config
+      </button>
+    </div>
+  </nav>
+  <div class="status-bar">
+    <span class="status-label">System</span>
+    <span class="status-val"><span class="pulse-dot"></span> All Systems Live</span>
+    <span style="font-size:10px;color:var(--text-muted);font-family:var(--mono);margin-top:4px;" id="sideTime"></span>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="pageTitle">Analytics Dashboard</div>
+      <div class="topbar-sub" id="pageSubtitle">Real-time parametric insurance intelligence</div>
+    </div>
+    <div class="topbar-right">
+      <div class="time-chip" id="topTime">--:--:-- IST</div>
+      <select class="city-selector" id="citySelect" onchange="updateCity()">
+        <option>Mumbai</option>
+        <option>Bengaluru</option>
+        <option>Delhi</option>
+        <option>Hyderabad</option>
+        <option>Chennai</option>
+        <option>Pune</option>
+      </select>
+      <button class="refresh-btn" onclick="refreshData()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- ANALYTICS PAGE -->
+  <div class="page active" id="page-analytics">
+    <!-- API Feed Ticker -->
+    <div style="padding:16px 28px 0;">
+      <div class="feed-ticker">
+        <div class="feed-chip live"><div class="feed-dot fd-green"></div>OpenWeatherMap: LIVE</div>
+        <div class="feed-chip live"><div class="feed-dot fd-green"></div>AQI-India: LIVE</div>
+        <div class="feed-chip warn"><div class="feed-dot fd-yellow"></div>NewsAPI: Latency 320ms</div>
+        <div class="feed-chip live"><div class="feed-dot fd-green"></div>GPS-Telemetry: LIVE</div>
+        <div class="feed-chip live"><div class="feed-dot fd-green"></div>PayFast: LIVE</div>
+        <div class="feed-chip err"><div class="feed-dot fd-red"></div>NDRF-Alerts: Error 503</div>
+      </div>
+    </div>
+
+    <div style="padding:0 28px 28px;">
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card blue">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-label">Active Partners</div>
+          <div class="kpi-val" style="color:var(--blue-bright)">12,482</div>
+          <div class="kpi-delta up">▲ 12.4% from last week</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-label">Weekly GWP</div>
+          <div class="kpi-val" style="color:var(--green)">₹5.86L</div>
+          <div class="kpi-delta neutral">Avg ₹47/rider · 3 platforms</div>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-icon">📤</div>
+          <div class="kpi-label">Claims Paid</div>
+          <div class="kpi-val" style="color:var(--red)">₹1.12L</div>
+          <div class="kpi-delta down">▲ 8.2% vs last week</div>
+        </div>
+        <div class="kpi-card cyan">
+          <div class="kpi-icon">🤖</div>
+          <div class="kpi-label">AI Loss Ratio</div>
+          <div class="kpi-val" style="color:var(--cyan)">19.2%</div>
+          <div class="kpi-delta up">✓ Within 25% threshold</div>
+        </div>
+      </div>
+
+      <!-- Charts Row 1 -->
+      <div class="row row-3-1">
+        <div class="card">
+          <div class="card-title">Weekly GWP & Claims Trend</div>
+          <div class="card-sub">Last 8 weeks · ₹ in thousands</div>
+          <div class="bar-chart" id="weeklyChart"></div>
+          <div style="display:flex;gap:16px;margin-top:12px;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-muted)"><span style="width:10px;height:10px;background:var(--blue);border-radius:2px;display:inline-block"></span>GWP</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-muted)"><span style="width:10px;height:10px;background:var(--red);border-radius:2px;display:inline-block"></span>Claims</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Platform Split</div>
+          <div class="card-sub">Active riders by platform</div>
+          <div class="donut-wrap" style="margin-top:8px;">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="35" fill="none" stroke="var(--border2)" stroke-width="12"/>
+              <circle cx="45" cy="45" r="35" fill="none" stroke="var(--blue)" stroke-width="12" stroke-dasharray="88 132" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+              <circle cx="45" cy="45" r="35" fill="none" stroke="var(--green)" stroke-width="12" stroke-dasharray="60 160" stroke-dashoffset="-88" transform="rotate(-90 45 45)"/>
+              <circle cx="45" cy="45" r="35" fill="none" stroke="var(--cyan)" stroke-width="12" stroke-dasharray="72 148" stroke-dashoffset="-148" transform="rotate(-90 45 45)"/>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><span>Swiggy <b>40%</b></span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div><span>Zomato <b>28%</b></span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div><span>Blinkit <b>32%</b></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone Monitoring + Fraud -->
+      <div class="row row-3-1" style="margin-top:0;">
+        <div class="card">
+          <div class="card-title">🗺️ Live Zone Disruption — <span id="cityName">Mumbai</span></div>
+          <div class="card-sub">Parametric trigger monitoring · Auto-refreshes every 60s</div>
+          <table class="zone-table">
+            <thead>
+              <tr>
+                <th>Zone</th>
+                <th>Condition</th>
+                <th>Rainfall</th>
+                <th>AQI</th>
+                <th>Riders</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="zoneTableBody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">🚨 Fraud Alerts</div>
+          <div class="card-sub">AI flagged · Last 24h</div>
+          <div id="fraudMiniList"></div>
+          <a href="#" onclick="navigate('fraud',document.querySelectorAll('.nav-btn')[2])" style="font-size:11px;color:var(--blue-bright);text-decoration:none;font-weight:600;">View all →</a>
+        </div>
+      </div>
+
+      <!-- Payout Activity -->
+      <div class="row row-3" style="margin-top:0;">
+        <div class="card">
+          <div class="card-title">💸 Recent Auto-Payouts</div>
+          <div class="card-sub">Parametric triggers fired today</div>
+          <div id="payoutMini"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📈 Daily Active Riders</div>
+          <div class="card-sub">Last 14 days</div>
+          <svg class="sparkline" width="100%" viewBox="0 0 200 40" preserveAspectRatio="none" id="sparkSvg" style="height:60px;margin-top:8px;"></svg>
+        </div>
+        <div class="card">
+          <div class="card-title">🌧️ Trigger Thresholds</div>
+          <div class="card-sub">Current AI config</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+            <div style="font-size:11px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Rain (critical)</span><span style="font-family:var(--mono);color:var(--red)">≥ 20mm/hr</span></div>
+            <div style="font-size:11px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Rain (warning)</span><span style="font-family:var(--mono);color:var(--orange)">≥ 12mm/hr</span></div>
+            <div style="font-size:11px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">AQI (critical)</span><span style="font-family:var(--mono);color:var(--red)">≥ 300</span></div>
+            <div style="font-size:11px;display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Wind (warning)</span><span style="font-family:var(--mono);color:var(--orange)">≥ 40 km/h</span></div>
+            <div style="font-size:11px;display:flex;justify-content:space-between;padding:6px 0"><span style="color:var(--text-muted)">Payout per trigger</span><span style="font-family:var(--mono);color:var(--green)">₹150–₹500</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRIGGERS PAGE -->
+  <div class="page" id="page-triggers">
+    <div style="padding:24px 28px;">
+      <div class="row" style="margin-bottom:16px;">
+        <div class="card" style="padding:16px 20px;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:24px;">⚡</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;">Parametric Trigger Engine</div>
+            <div style="font-size:11px;color:var(--text-muted);">3 active triggers fired today · ₹89,400 auto-disbursed</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:10px;">
+            <span class="status-pill pill-green">Engine: LIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Active Trigger Conditions</div>
+        <div class="card-sub">Toggle on/off · Edit thresholds in AI Config</div>
+        <div id="triggerList"></div>
+      </div>
+
+      <div class="row row-2">
+        <div class="card">
+          <div class="card-title">📋 Today's Trigger Log</div>
+          <div class="card-sub">All parametric events · <span style="color:var(--green)">Auto-processed</span></div>
+          <table class="zone-table">
+            <thead><tr><th>Time</th><th>Zone</th><th>Trigger</th><th>Riders</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody id="triggerLog"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">📡 API Data Sources</div>
+          <div class="card-sub">Live feed status</div>
+          <div id="apiSources"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FRAUD PAGE -->
+  <div class="page" id="page-fraud">
+    <div style="padding:24px 28px;">
+      <div class="row row-2">
+        <div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">🛡️ Active Fraud Alerts</div>
+            <div class="card-sub">AI anomaly detection · Requires manual review</div>
+            <div id="fraudFullList"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">📊 Fraud Stats</div>
+            <div class="card-sub">This month</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+              <div class="detail-row"><span class="detail-k">Cases Flagged</span><span class="detail-v" style="color:var(--orange)">47</span></div>
+              <div class="detail-row"><span class="detail-k">Confirmed Fraud</span><span class="detail-v" style="color:var(--red)">12</span></div>
+              <div class="detail-row"><span class="detail-k">False Positives</span><span class="detail-v" style="color:var(--text-dim)">23</span></div>
+              <div class="detail-row"><span class="detail-k">Pending Review</span><span class="detail-v" style="color:var(--yellow)">12</span></div>
+              <div class="detail-row"><span class="detail-k">Fraud Amount Saved</span><span class="detail-v" style="color:var(--green)">₹2,34,000</span></div>
+              <div class="detail-row"><span class="detail-k">Detection Accuracy</span><span class="detail-v" style="color:var(--cyan)">94.3%</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">🔍 Detection Methods</div>
+            <div class="card-sub">AI models active</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)">
+                <span>GPS Geofence Check</span><span class="status-pill pill-green">ACTIVE</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)">
+                <span>Multi-platform Cross-check</span><span class="status-pill pill-green">ACTIVE</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)">
+                <span>Velocity Anomaly Detector</span><span class="status-pill pill-green">ACTIVE</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:6px 0">
+                <span>Device Fingerprint Match</span><span class="status-pill pill-orange">BETA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIDERS PAGE -->
+  <div class="page" id="page-riders">
+    <div style="padding:24px 28px;">
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div class="card-title" style="margin-bottom:0;">🛵 Rider Database</div>
+          <input id="riderSearch" oninput="filterRiders()" placeholder="Search by name or ID..." style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:6px 12px;border-radius:8px;font-size:12px;outline:none;width:220px;font-family:var(--sans);">
+          <div style="margin-left:auto;font-size:12px;color:var(--text-muted);" id="riderCount"></div>
+        </div>
+        <table class="zone-table" id="riderTable">
+          <thead><tr><th>Rider ID</th><th>Name</th><th>Platform</th><th>Zone</th><th>Claims</th><th>Premium Paid</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="riderTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYOUTS PAGE -->
+  <div class="page" id="page-payouts">
+    <div style="padding:24px 28px;">
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+        <div class="kpi-card green">
+          <div class="kpi-label">Total Disbursed (Today)</div>
+          <div class="kpi-val" style="color:var(--green)">₹89,400</div>
+          <div class="kpi-delta up">3 trigger events</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-label">Avg Processing Time</div>
+          <div class="kpi-val" style="color:var(--blue-bright)">4.2s</div>
+          <div class="kpi-delta up">Fully automated</div>
+        </div>
+        <div class="kpi-card cyan">
+          <div class="kpi-label">Pending Payouts</div>
+          <div class="kpi-val" style="color:var(--cyan)">147</div>
+          <div class="kpi-delta neutral">Queue processing</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">💸 Payout Ledger</div>
+        <div class="card-sub">All parametric claim disbursements</div>
+        <table class="zone-table">
+          <thead><tr><th>Ref ID</th><th>Rider</th><th>Platform</th><th>Trigger</th><th>Amount</th><th>Time</th><th>Status</th></tr></thead>
+          <tbody id="payoutTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIG PAGE -->
+  <div class="page" id="page-config">
+    <div style="padding:24px 28px;max-width:700px;">
+      <div class="card">
+        <div class="config-section">
+          <div class="config-title">🌧️ Weather Trigger Thresholds</div>
+          <div class="config-row">
+            <div class="config-key"><strong>Critical Rainfall</strong>Triggers max payout (₹500)</div>
+            <input class="config-input" value="20" id="cfg_rain_critical"> mm/hr
+          </div>
+          <div class="config-row">
+            <div class="config-key"><strong>Warning Rainfall</strong>Triggers standard payout (₹150)</div>
+            <input class="config-input" value="12" id="cfg_rain_warn"> mm/hr
+          </div>
+          <div class="config-row">
+            <div class="config-key"><strong>Critical AQI</strong>Air quality trigger</div>
+            <input class="config-input" value="300" id="cfg_aqi">
+          </div>
+          <div class="config-row">
+            <div class="config-key"><strong>Wind Speed Warning</strong>Strong wind trigger</div>
+            <input class="config-input" value="40" id="cfg_wind"> km/h
+          </div>
+        </div>
+        <div class="config-section">
+          <div class="config-title">💰 Payout Configuration</div>
+          <div class="config-row">
+            <div class="config-key"><strong>Critical Event Payout</strong>Per qualifying rider</div>
+            <span>₹</span> <input class="config-input" value="500" id="cfg_payout_crit">
+          </div>
+          <div class="config-row">
+            <div class="config-key"><strong>Warning Event Payout</strong>Per qualifying rider</div>
+            <span>₹</span> <input class="config-input" value="150" id="cfg_payout_warn">
+          </div>
+          <div class="config-row">
+            <div class="config-key"><strong>Max Daily Exposure</strong>Per zone cap</div>
+            <span>₹</span> <input class="config-input" value="50000" id="cfg_daily_cap">
+          </div>
+        </div>
+        <div class="config-section">
+          <div class="config-title">🤖 AI Fraud Detection</div>
+          <div class="config-row">
+            <div class="config-key"><strong>GPS Tolerance Radius</strong>Geofence check radius</div>
+            <input class="config-input" value="500" id="cfg_gps"> meters
+          </div>
+          <div class="config-row">
+            <div class="config-key"><strong>Multi-Platform Window</strong>Cross-check time window</div>
+            <input class="config-input" value="30" id="cfg_mpw"> minutes
+          </div>
+        </div>
+        <button class="save-btn" onclick="saveConfig()">💾 Save Configuration</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- RIDER DETAIL MODAL -->
+<div class="modal-overlay" id="riderModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalName"></div>
+    <div class="modal-sub" id="modalId"></div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== DATA =====================
+const zones = {
+  Mumbai: [
+    { name:'Andheri West', rain:24, aqi:142, wind:18, riders:412, status:'critical' },
+    { name:'Bandra East', rain:2, aqi:120, wind:8, riders:285, status:'normal' },
+    { name:'Kurla', rain:15, aqi:198, wind:22, riders:337, status:'warning' },
+    { name:'Dadar', rain:8, aqi:155, wind:12, riders:201, status:'normal' },
+    { name:'Malad West', rain:22, aqi:245, wind:30, riders:178, status:'critical' },
+    { name:'Thane', rain:0, aqi:88, wind:6, riders:156, status:'normal' },
+  ],
+  Bengaluru: [
+    { name:'Koramangala', rain:18, aqi:160, wind:25, riders:510, status:'warning' },
+    { name:'Whitefield', rain:3, aqi:95, wind:10, riders:320, status:'normal' },
+    { name:'HSR Layout', rain:26, aqi:210, wind:35, riders:290, status:'critical' },
+    { name:'Indiranagar', rain:5, aqi:108, wind:12, riders:380, status:'normal' },
+  ],
+  Delhi: [
+    { name:'Connaught Place', rain:0, aqi:310, wind:8, riders:450, status:'critical' },
+    { name:'Lajpat Nagar', rain:1, aqi:285, wind:10, riders:360, status:'warning' },
+    { name:'Noida Sec 62', rain:0, aqi:195, wind:6, riders:280, status:'normal' },
+  ],
+  Hyderabad: [
+    { name:'Hitech City', rain:12, aqi:130, wind:20, riders:340, status:'warning' },
+    { name:'Ameerpet', rain:4, aqi:100, wind:8, riders:270, status:'normal' },
+  ],
+  Chennai: [
+    { name:'T Nagar', rain:30, aqi:110, wind:40, riders:290, status:'critical' },
+    { name:'Anna Nagar', rain:6, aqi:88, wind:15, riders:210, status:'normal' },
+  ],
+  Pune: [
+    { name:'Kothrud', rain:14, aqi:140, wind:22, riders:180, status:'warning' },
+    { name:'Wakad', rain:2, aqi:95, wind:9, riders:145, status:'normal' },
+  ]
+};
+
+const fraudAlerts = [
+  { id:'ZM-9921', type:'Multi-Platform Login', severity:'critical', desc:'Rider active on Zomato during Swiggy payout claim. Cross-platform activity detected within 30-min window.', time:'14:32:11', amount:'₹500' },
+  { id:'SW-1022', type:'GPS Geofence Mismatch', severity:'high', desc:'Claimed disruption in Andheri West, GPS shows Navi Mumbai (23km away). Outside 500m tolerance radius.', time:'13:45:07', amount:'₹150' },
+  { id:'BL-3341', type:'Velocity Anomaly', severity:'medium', desc:'Rider claimed 3 separate trigger payouts in 4 hours across 3 different zones. Statistical outlier.', time:'11:20:44', amount:'₹1,200' },
+  { id:'ZM-7712', type:'Device Fingerprint Change', severity:'low', desc:'New device logged in 15 min before trigger event. Previous device not seen for 8 days.', time:'09:10:22', amount:'₹150' },
+];
+
+const riders = [
+  { id:'SW-0011', name:'Arjun Sharma', platform:'Swiggy', zone:'Andheri West', claims:3, premium:282, status:'active' },
+  { id:'ZM-0142', name:'Priya Nair', platform:'Zomato', zone:'Bandra East', claims:1, premium:188, status:'active' },
+  { id:'BL-0233', name:'Mohan Das', platform:'Blinkit', zone:'Kurla', claims:2, premium:235, status:'active' },
+  { id:'SW-0044', name:'Keerthi R', platform:'Swiggy', zone:'Dadar', claims:0, premium:94, status:'active' },
+  { id:'ZM-9921', name:'Vijay Kumar', platform:'Zomato', zone:'Malad West', claims:5, premium:470, status:'flagged' },
+  { id:'SW-1022', name:'Roshni Mehta', platform:'Swiggy', zone:'Thane', claims:2, premium:188, status:'flagged' },
+  { id:'BL-0511', name:'Anand Pillai', platform:'Blinkit', zone:'Andheri West', claims:1, premium:141, status:'active' },
+  { id:'ZM-0602', name:'Sunita Rao', platform:'Zomato', zone:'Kurla', claims:4, premium:376, status:'active' },
+  { id:'SW-0713', name:'Deepak Singh', platform:'Swiggy', zone:'Bandra East', claims:0, premium:47, status:'inactive' },
+  { id:'BL-3341', name:'Farhan Qureshi', platform:'Blinkit', zone:'Dadar', claims:8, premium:752, status:'flagged' },
+  { id:'ZM-0814', name:'Lakshmi Devi', platform:'Zomato', zone:'Malad West', claims:2, premium:188, status:'active' },
+  { id:'SW-0915', name:'Ravi Patil', platform:'Swiggy', zone:'Thane', claims:1, premium:94, status:'active' },
+];
+
+const payouts = [
+  { ref:'TXN-8821', rider:'SW-0011', name:'Arjun Sharma', platform:'Swiggy', trigger:'Rain ≥20mm', amount:'₹500', time:'14:32:05', status:'success' },
+  { ref:'TXN-8820', rider:'BL-0511', name:'Anand Pillai', platform:'Blinkit', trigger:'Rain ≥20mm', amount:'₹500', time:'14:31:58', status:'success' },
+  { ref:'TXN-8819', rider:'ZM-0142', name:'Priya Nair', platform:'Zomato', trigger:'Rain ≥12mm', amount:'₹150', time:'13:10:22', status:'success' },
+  { ref:'TXN-8818', rider:'BL-0233', name:'Mohan Das', platform:'Blinkit', trigger:'AQI ≥300', amount:'₹500', time:'12:45:11', status:'success' },
+  { ref:'TXN-8817', rider:'ZM-0602', name:'Sunita Rao', platform:'Zomato', trigger:'Rain ≥12mm', amount:'₹150', time:'11:20:03', status:'success' },
+  { ref:'TXN-8816', rider:'SW-0915', name:'Ravi Patil', platform:'Swiggy', trigger:'Wind ≥40km/h', amount:'₹150', time:'10:05:44', status:'pending' },
+  { ref:'TXN-8815', rider:'ZM-9921', name:'Vijay Kumar', platform:'Zomato', trigger:'Rain ≥20mm', amount:'₹500', time:'09:55:31', status:'held' },
+];
+
+const triggerDefs = [
+  { name:'Heavy Rainfall', icon:'🌧️', api:'OpenWeatherMap', condition:'rain ≥ 20 mm/hr', payout:'₹500', active:true },
+  { name:'Moderate Rainfall', icon:'🌦️', api:'OpenWeatherMap', condition:'rain ≥ 12 mm/hr', payout:'₹150', active:true },
+  { name:'Severe AQI', icon:'😷', api:'AQI-India', condition:'AQI ≥ 300', payout:'₹500', active:true },
+  { name:'High Wind', icon:'💨', api:'OpenWeatherMap', condition:'wind ≥ 40 km/h', payout:'₹150', active:true },
+  { name:'Flood Alert', icon:'🌊', api:'NDRF-Alerts', condition:'Level 2+ flood warning', payout:'₹500', active:false },
+  { name:'Civil Disruption', icon:'🚧', api:'NewsAPI', condition:'Protest/bandh in zone', payout:'₹150', active:false },
+];
+
+const apiSources = [
+  { name:'OpenWeatherMap', url:'api.openweathermap.org', status:'live', latency:'95ms', calls:1240 },
+  { name:'AQI-India', url:'api.waqi.info', status:'live', latency:'140ms', calls:890 },
+  { name:'NewsAPI', url:'newsapi.org', status:'warn', latency:'320ms', calls:112 },
+  { name:'GPS-Telemetry', url:'internal', status:'live', latency:'12ms', calls:48200 },
+  { name:'PayFast', url:'payments.internal', status:'live', latency:'55ms', calls:312 },
+  { name:'NDRF-Alerts', url:'ndrf.gov.in/api', status:'error', latency:'—', calls:0 },
+];
+
+const triggerLog = [
+  { time:'14:32:01', zone:'Andheri West', trigger:'Rain 24mm/hr', riders:412, amount:'₹2,06,000', status:'processed' },
+  { time:'13:10:15', zone:'Kurla', trigger:'Rain 15mm/hr', riders:337, amount:'₹50,550', status:'processed' },
+  { time:'09:45:22', zone:'Malad West', trigger:'AQI 245', riders:178, amount:'₹26,700', status:'processing' },
+];
+
+const weeklyData = [
+  { week:'W1', gwp:420, claims:68 },
+  { week:'W2', gwp:385, claims:55 },
+  { week:'W3', gwp:510, claims:92 },
+  { week:'W4', gwp:448, claims:71 },
+  { week:'W5', gwp:520, claims:88 },
+  { week:'W6', gwp:490, claims:95 },
+  { week:'W7', gwp:565, claims:102 },
+  { week:'W8', gwp:586, claims:112 },
+];
+
+// ===================== RENDER =====================
+let allRiders = [...riders];
+
+function getStatusPill(status) {
+  const map = {
+    critical: '<span class="status-pill pill-red">CRITICAL</span>',
+    warning: '<span class="status-pill pill-orange">WARNING</span>',
+    normal: '<span class="status-pill pill-green">NORMAL</span>',
+    active: '<span class="status-pill pill-green">ACTIVE</span>',
+    inactive: '<span class="status-pill pill-blue">INACTIVE</span>',
+    flagged: '<span class="status-pill pill-red">FLAGGED</span>',
+    success: '<span class="status-pill pill-green">SUCCESS</span>',
+    pending: '<span class="status-pill pill-orange">PENDING</span>',
+    held: '<span class="status-pill pill-red">HELD</span>',
+    processed: '<span class="status-pill pill-green">PROCESSED</span>',
+    processing: '<span class="status-pill pill-orange">PROCESSING</span>',
+    live: '<span class="status-pill pill-green">LIVE</span>',
+    warn: '<span class="status-pill pill-orange">SLOW</span>',
+    error: '<span class="status-pill pill-red">ERROR</span>',
+  };
+  return map[status] || status;
+}
+
+function renderZoneTable() {
+  const city = document.getElementById('citySelect').value;
+  const data = zones[city] || [];
+  let html = '';
+  data.forEach(z => {
+    html += `<tr>
+      <td><b>${z.name}</b></td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">${z.rain}mm · ${z.wind}km/h</td>
+      <td style="font-family:var(--mono);font-size:11px">${z.rain} mm/hr</td>
+      <td style="font-family:var(--mono);font-size:11px;color:${z.aqi>200?'var(--orange)':'var(--text-dim)'}">${z.aqi}</td>
+      <td style="font-family:var(--mono);font-size:11px;font-weight:700">${z.riders}</td>
+      <td>${getStatusPill(z.status)}</td>
+      <td>${z.status==='critical'?`<button class="btn-sm btn-red" onclick="showToast('Payout for ${z.name} queued!')">Trigger Pay</button>`:`<span style='font-size:10px;color:var(--text-muted)'>Monitor</span>`}</td>
+    </tr>`;
+  });
+  document.getElementById('zoneTableBody').innerHTML = html;
+  document.getElementById('cityName').textContent = city;
+}
+
+function renderFraudMini() {
+  let html = '';
+  fraudAlerts.slice(0,2).forEach(f => {
+    html += `<div class="fraud-item ${f.severity}">
+      <div class="fraud-title">${f.type}</div>
+      <div class="fraud-meta">ID: ${f.id} · ${f.time} · ${f.amount}</div>
+    </div>`;
+  });
+  document.getElementById('fraudMiniList').innerHTML = html;
+}
+
+function renderFraudFull() {
+  let html = '';
+  fraudAlerts.forEach(f => {
+    html += `<div class="fraud-item ${f.severity}" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div class="fraud-title">${f.type}</div>
+        <span class="status-pill ${f.severity==='critical'?'pill-red':f.severity==='high'?'pill-orange':'pill-blue'}">${f.severity.toUpperCase()}</span>
+      </div>
+      <div class="fraud-meta">Rider: <b>${f.id}</b> · Time: ${f.time} · Blocked Amount: <b style="color:var(--red)">${f.amount}</b></div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">${f.desc}</div>
+      <div class="fraud-actions">
+        <button class="btn-sm btn-red" onclick="showToast('Rider ${f.id} flagged & suspended')">Suspend Rider</button>
+        <button class="btn-sm btn-yellow" onclick="showToast('Case ${f.id} sent to investigator')">Investigate</button>
+        <button class="btn-sm btn-green" onclick="showToast('Case ${f.id} cleared as false positive')">Clear</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('fraudFullList').innerHTML = html;
+}
+
+function renderPayoutMini() {
+  let html = '';
+  payouts.slice(0,4).forEach(p => {
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:11px;">
+      <div>
+        <div style="font-weight:600">${p.name}</div>
+        <div style="color:var(--text-muted);font-family:var(--mono);font-size:10px;">${p.trigger}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--mono);font-weight:700;color:var(--green)">${p.amount}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${p.time}</div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('payoutMini').innerHTML = html;
+}
+
+function renderWeeklyChart() {
+  const el = document.getElementById('weeklyChart');
+  const max = Math.max(...weeklyData.map(d => d.gwp));
+  let html = '';
+  weeklyData.forEach(d => {
+    const gwpH = Math.round((d.gwp/max)*90);
+    const claimH = Math.round((d.claims/max)*90);
+    html += `<div class="bar-wrap">
+      <div style="display:flex;gap:2px;align-items:flex-end;height:90px;">
+        <div class="bar" style="height:${gwpH}px;background:linear-gradient(180deg,var(--blue),rgba(59,130,246,0.3));flex:1" title="GWP ₹${d.gwp}K"></div>
+        <div class="bar" style="height:${claimH}px;background:linear-gradient(180deg,var(--red),rgba(239,68,68,0.3));flex:1" title="Claims ₹${d.claims}K"></div>
+      </div>
+      <div class="bar-label">${d.week}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderSparkline() {
+  const data = [8200,9100,8750,9400,10200,9800,10900,11400,10800,11200,11800,12100,11900,12482];
+  const max = Math.max(...data); const min = Math.min(...data);
+  const w = 200; const h = 40;
+  const pts = data.map((v,i) => {
+    const x = (i/(data.length-1))*w;
+    const y = h - ((v-min)/(max-min))*(h-4) - 2;
+    return `${x},${y}`;
+  }).join(' ');
+  const svg = document.getElementById('sparkSvg');
+  svg.innerHTML = `
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--blue)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--blue)" stop-opacity="0"/></linearGradient></defs>
+    <polygon points="${pts} ${w},${h} 0,${h}" fill="url(#sg)"/>
+    <polyline points="${pts}" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="${(13/13)*w}" cy="${h-((data[13]-min)/(max-min))*(h-4)-2}" r="3" fill="var(--cyan)"/>
+  `;
+}
+
+function renderTriggers() {
+  let html = '';
+  triggerDefs.forEach((t,i) => {
+    html += `<div class="trigger-card">
+      <div style="font-size:22px;margin-right:12px;">${t.icon}</div>
+      <div class="trigger-info">
+        <div class="trigger-name">${t.name}</div>
+        <div class="trigger-desc">Condition: ${t.condition} · Payout: ${t.payout}</div>
+      </div>
+      <div class="trigger-meta">
+        <span class="api-chip">${t.api}</span>
+        <div class="toggle-wrap">
+          <div class="toggle ${t.active?'on':''}" onclick="this.classList.toggle('on');showToast('Trigger updated')"></div>
+          <span style="font-size:11px;color:var(--text-muted)">${t.active?'ON':'OFF'}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('triggerList').innerHTML = html;
+
+  let logHtml = '';
+  triggerLog.forEach(t => {
+    logHtml += `<tr>
+      <td style="font-family:var(--mono);font-size:10px">${t.time}</td>
+      <td><b>${t.zone}</b></td>
+      <td style="font-size:11px;color:var(--text-dim)">${t.trigger}</td>
+      <td style="font-family:var(--mono)">${t.riders}</td>
+      <td style="font-family:var(--mono);color:var(--green);font-weight:700">${t.amount}</td>
+      <td>${getStatusPill(t.status)}</td>
+    </tr>`;
+  });
+  document.getElementById('triggerLog').innerHTML = logHtml;
+
+  let apiHtml = '';
+  apiSources.forEach(a => {
+    apiHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <div>
+        <div style="font-weight:600">${a.name}</div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--text-muted)">${a.url} · ${a.calls.toLocaleString()} calls/day</div>
+      </div>
+      <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        ${getStatusPill(a.status)}
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${a.latency}</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('apiSources').innerHTML = apiHtml;
+}
+
+function renderRiders() {
+  const search = (document.getElementById('riderSearch')?.value||'').toLowerCase();
+  const filtered = allRiders.filter(r => r.name.toLowerCase().includes(search) || r.id.toLowerCase().includes(search));
+  document.getElementById('riderCount').textContent = `${filtered.length} riders`;
+  let html = '';
+  filtered.forEach(r => {
+    html += `<tr>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">${r.id}</td>
+      <td><b>${r.name}</b></td>
+      <td style="font-size:11px">${r.platform}</td>
+      <td style="font-size:11px">${r.zone}</td>
+      <td style="font-family:var(--mono);text-align:center">${r.claims}</td>
+      <td style="font-family:var(--mono);color:var(--green)">₹${r.premium}</td>
+      <td>${getStatusPill(r.status)}</td>
+      <td><button class="btn-sm btn-blue" onclick='openRiderModal(${JSON.stringify(r)})'>View</button></td>
+    </tr>`;
+  });
+  document.getElementById('riderTableBody').innerHTML = html;
+}
+
+function filterRiders() { renderRiders(); }
+
+function openRiderModal(r) {
+  document.getElementById('modalName').textContent = r.name;
+  document.getElementById('modalId').textContent = `Rider ID: ${r.id} · ${r.platform}`;
+  document.getElementById('modalContent').innerHTML = `
+    <div class="detail-row"><span class="detail-k">Platform</span><span class="detail-v">${r.platform}</span></div>
+    <div class="detail-row"><span class="detail-k">Zone</span><span class="detail-v">${r.zone}</span></div>
+    <div class="detail-row"><span class="detail-k">Status</span><span class="detail-v">${r.status.toUpperCase()}</span></div>
+    <div class="detail-row"><span class="detail-k">Total Claims</span><span class="detail-v" style="color:var(--blue-bright)">${r.claims}</span></div>
+    <div class="detail-row"><span class="detail-k">Total Premium Paid</span><span class="detail-v" style="color:var(--green)">₹${r.premium}</span></div>
+    <div class="detail-row"><span class="detail-k">Avg Premium/Week</span><span class="detail-v">₹47</span></div>
+    <div class="detail-row"><span class="detail-k">Account Created</span><span class="detail-v">Jan 2024</span></div>
+    <div class="detail-row"><span class="detail-k">KYC Status</span><span class="detail-v" style="color:var(--green)">VERIFIED</span></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn-sm btn-blue" style="padding:8px 14px;font-size:11px;" onclick="showToast('Viewing claim history for ${r.id}')">Claim History</button>
+      <button class="btn-sm btn-red" style="padding:8px 14px;font-size:11px;" onclick="showToast('Rider ${r.id} suspended');closeModal()">Suspend</button>
+    </div>
+  `;
+  document.getElementById('riderModal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('riderModal').classList.remove('open'); }
+
+function renderPayouts() {
+  let html = '';
+  payouts.forEach(p => {
+    html += `<tr>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${p.ref}</td>
+      <td><div style="font-size:12px;font-weight:600">${p.name}</div><div style="font-size:10px;font-family:var(--mono);color:var(--text-muted)">${p.rider}</div></td>
+      <td style="font-size:11px">${p.platform}</td>
+      <td style="font-size:11px;color:var(--text-dim)">${p.trigger}</td>
+      <td style="font-family:var(--mono);font-weight:700;color:var(--green)">${p.amount}</td>
+      <td style="font-family:var(--mono);font-size:10px">${p.time}</td>
+      <td>${getStatusPill(p.status)}</td>
+    </tr>`;
+  });
+  document.getElementById('payoutTable').innerHTML = html;
+}
+
+// ===================== NAVIGATION =====================
+const pageTitles = {
+  analytics: ['Analytics Dashboard', 'Real-time parametric insurance intelligence'],
+  triggers: ['Live Triggers', 'Parametric event engine & API feeds'],
+  fraud: ['Fraud Monitor', 'AI anomaly detection & case management'],
+  riders: ['Rider Database', 'Manage & view all registered gig workers'],
+  payouts: ['Payout Ledger', 'Automated parametric disbursements'],
+  config: ['AI Configuration', 'Threshold & payout model settings'],
+};
+
+function navigate(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  const [title, sub] = pageTitles[id] || [id,''];
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('pageSubtitle').textContent = sub;
+}
+
+function updateCity() { renderZoneTable(); }
+
+function refreshData() {
+  renderZoneTable();
+  showToast('Data refreshed from live feeds ✓');
+}
+
+function saveConfig() { showToast('Configuration saved & applied ✓'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(()=>{ t.style.display='none'; }, 2800);
+}
+
+// ===================== CLOCK =====================
+function updateTime() {
+  const now = new Date();
+  const ist = new Date(now.getTime() + (5.5*3600000));
+  const s = ist.toISOString().replace('T',' ').substring(0,19) + ' IST';
+  document.getElementById('topTime').textContent = s.split(' ')[1] + ' IST';
+  document.getElementById('sideTime').textContent = s.split(' ')[0];
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// ===================== INIT =====================
+renderZoneTable();
+renderFraudMini();
+renderFraudFull();
+renderPayoutMini();
+renderWeeklyChart();
+renderSparkline();
+renderTriggers();
+renderRiders();
+renderPayouts();
+</script>
+</body>
+</html>
