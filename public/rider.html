@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kavach.ai — Rider Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050810; --surface:#0b1120; --surface2:#0f1628; --surface3:#131d35;
+  --border:rgba(100,180,255,0.08); --border2:rgba(100,180,255,0.16);
+  --indigo:#6366f1; --indigo-b:#818cf8; --cyan:#22d3ee;
+  --green:#10b981; --green-b:#34d399; --amber:#f59e0b;
+  --red:#ef4444; --rose:#f43f5e;
+  --text:#e2e8f0; --dim:#94a3b8; --muted:#475569;
+  --mono:'JetBrains Mono',monospace; --sans:'Outfit',sans-serif; --display:'Syne',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(100,180,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(100,180,255,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* TOPBAR */
+.topbar{background:rgba(11,17,32,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border2);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.logo{font-family:var(--display);font-size:17px;font-weight:800;background:linear-gradient(135deg,#818cf8,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.rider-chip{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border2);padding:8px 16px;border-radius:30px;}
+.rider-chip-name{font-weight:700;font-size:13px;}
+.rider-chip-id{font-family:var(--mono);font-size:11px;color:var(--dim);}
+.logout-btn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.2s;}
+.logout-btn:hover{background:rgba(239,68,68,0.2);}
+
+/* LAYOUT */
+.container{max-width:1100px;margin:0 auto;padding:28px 24px;position:relative;z-index:1;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(34,211,238,0.06));border:1px solid rgba(99,102,241,0.2);border-radius:20px;padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
+.hero::before{content:'🛡️';position:absolute;right:32px;font-size:80px;opacity:0.06;bottom:-10px;}
+.hero-name{font-family:var(--display);font-size:24px;font-weight:800;margin-bottom:4px;}
+.hero-sub{color:var(--dim);font-size:13px;font-family:var(--mono);}
+.hero-status{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.pulse-badge{display:flex;align-items:center;gap:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:8px 16px;border-radius:30px;font-size:12px;font-weight:700;color:var(--green-b);}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px;}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,0.015),transparent 60%);pointer-events:none;}
+.card-title{font-family:var(--display);font-size:13px;font-weight:700;margin-bottom:4px;}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:14px;font-family:var(--mono);}
+
+/* STAT CARDS */
+.stat-val{font-family:var(--display);font-size:28px;font-weight:800;margin:8px 0 4px;}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;}
+.stat-sub{font-size:11px;color:var(--dim);font-family:var(--mono);}
+.accent{position:absolute;bottom:0;left:10%;right:10%;height:2px;border-radius:2px 2px 0 0;}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;font-size:9px;font-weight:700;font-family:var(--mono);padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:0.8px;border:1px solid;}
+.pill-green{background:rgba(16,185,129,0.1);color:#34d399;border-color:rgba(16,185,129,0.3);}
+.pill-red{background:rgba(239,68,68,0.1);color:#f87171;border-color:rgba(239,68,68,0.3);}
+.pill-amber{background:rgba(245,158,11,0.1);color:#fbbf24;border-color:rgba(245,158,11,0.3);}
+.pill-blue{background:rgba(59,130,246,0.1);color:#60a5fa;border-color:rgba(59,130,246,0.3);}
+.pill-indigo{background:rgba(99,102,241,0.1);color:#818cf8;border-color:rgba(99,102,241,0.3);}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border2);font-family:var(--mono);}
+.tbl td{padding:10px 10px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+
+/* CLAIM FLOW */
+.claim-flow{display:flex;align-items:center;gap:0;margin:14px 0;}
+.cs{flex:1;text-align:center;padding:12px 6px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-size:11px;}
+.cs.done{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25);}
+.cs-icon{font-size:16px;margin-bottom:4px;}
+.cs-label{font-size:9px;font-weight:700;font-family:var(--mono);text-transform:uppercase;}
+.ca{width:20px;flex-shrink:0;text-align:center;color:var(--muted);font-size:11px;}
+
+/* SENSOR */
+.gyro-ring{width:90px;height:90px;margin:0 auto 10px;}
+.gyro-ring svg{width:100%;height:100%;animation:gyroSpin 4s linear infinite;}
+@keyframes gyroSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.gyro-val{font-family:var(--mono);font-size:26px;font-weight:700;text-align:center;color:var(--green-b);transition:color 0.3s;}
+.gyro-val.danger{color:var(--red);animation:dFlash 0.4s infinite alternate;}
+@keyframes dFlash{from{color:var(--red)}to{color:var(--rose)}}
+.a-bar{height:6px;border-radius:3px;background:var(--surface3);overflow:hidden;margin-bottom:8px;}
+.a-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width 0.5s ease;}
+.a-fill.high{background:linear-gradient(90deg,var(--amber),var(--amber));}
+.a-fill.critical{background:linear-gradient(90deg,var(--red),var(--rose));}
+
+/* PRICING METER */
+.pricing-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.pricing-row:last-child{border-bottom:none;}
+.pr-bar{flex:1;height:4px;background:var(--surface3);border-radius:4px;overflow:hidden;}
+.pr-fill{height:100%;border-radius:4px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--surface2);border:1px solid var(--green);color:var(--green-b);padding:12px 18px;border-radius:12px;font-size:12px;font-weight:600;font-family:var(--mono);display:none;animation:tIn 0.3s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 30px rgba(16,185,129,0.12),0 8px 30px rgba(0,0,0,0.4);}
+.toast.critical{border-color:var(--red);color:#f87171;}
+@keyframes tIn{from{transform:translateX(40px) scale(0.9);opacity:0}to{transform:none;opacity:1}}
+
+/* BTN */
+.btn{border:none;cursor:pointer;font-family:var(--sans);border-radius:8px;transition:all 0.15s;}
+.btn-primary{background:linear-gradient(135deg,var(--indigo),#8b5cf6);color:#fff;padding:10px 20px;font-weight:700;font-size:13px;box-shadow:0 4px 15px rgba(99,102,241,0.3);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,0.4);}
+.btn-red{background:rgba(239,68,68,0.1);color:#f87171;padding:7px 14px;font-size:12px;font-weight:600;}
+.btn-red:hover{background:rgba(239,68,68,0.2);}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;}
+.loader-logo{font-family:var(--display);font-size:28px;font-weight:800;background:linear-gradient(135deg,#818cf8,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px;}
+.loader-bar{width:200px;height:3px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.loader-fill{height:100%;background:linear-gradient(90deg,var(--indigo),var(--cyan));animation:load 1.2s ease forwards;}
+@keyframes load{from{width:0}to{width:100%}}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loader-logo">🛡️ Kavach.ai</div>
+  <div style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:16px;">Loading your protection dashboard…</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<div id="app" style="display:none;">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">🛡️ Kavach.ai</div>
+    <div class="rider-chip">
+      <div>
+        <div class="rider-chip-name" id="topName">—</div>
+        <div class="rider-chip-id" id="topId">—</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">← Logout</button>
+  </div>
+
+  <div class="container">
+    <!-- HERO -->
+    <div class="hero">
+      <div>
+        <div style="font-size:11px;color:var(--dim);font-family:var(--mono);margin-bottom:6px;">WELCOME BACK, PARTNER</div>
+        <div class="hero-name" id="heroName">Loading…</div>
+        <div class="hero-sub" id="heroPlatform">—</div>
+      </div>
+      <div class="hero-status">
+        <div class="pulse-badge"><div class="pulse-dot"></div> Coverage Active</div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);" id="heroZone">Zone: —</div>
+      </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="grid3">
+      <div class="card">
+        <div class="stat-label">Total Premium Paid</div>
+        <div class="stat-val" style="color:var(--indigo-b);" id="statPremium">—</div>
+        <div class="stat-sub" id="statWeekly">—</div>
+        <div class="accent" style="background:linear-gradient(90deg,var(--indigo),#8b5cf6);"></div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Claims Received</div>
+        <div class="stat-val" style="color:var(--green-b);" id="statClaims">—</div>
+        <div class="stat-sub" id="statClaimAmt">All auto-processed</div>
+        <div class="accent" style="background:linear-gradient(90deg,var(--green),#14b8a6);"></div>
+      </div>
+      <div class="card">
+        <div class="stat-label">ML Risk Score</div>
+        <div class="stat-val" id="statRisk">—</div>
+        <div class="stat-sub">Affects your premium</div>
+        <div class="accent" style="background:linear-gradient(90deg,var(--cyan),var(--indigo));"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <!-- ML PRICING -->
+      <div class="card">
+        <div class="card-title">🧠 Your ML-Adjusted Premium</div>
+        <div class="card-sub">Hyper-local risk factors · Updated weekly</div>
+        <div id="pricingFactors">
+          <div style="text-align:center;color:var(--muted);padding:20px;font-family:var(--mono);font-size:11px;">Loading pricing…</div>
+        </div>
+        <div id="premiumResult" style="margin-top:14px;padding:14px;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(20,184,166,0.05));border:1px solid rgba(16,185,129,0.2);border-radius:12px;display:none;">
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);">YOUR WEEKLY PREMIUM</div>
+          <div style="font-family:var(--display);font-size:26px;font-weight:800;color:var(--green-b);margin-top:4px;">₹<span id="finalPremium">—</span>/week</div>
+        </div>
+      </div>
+
+      <!-- PAYOUTS -->
+      <div class="card">
+        <div class="card-title">💸 Your Payout History</div>
+        <div class="card-sub">Parametric auto-claims</div>
+        <table class="tbl">
+          <thead><tr><th>Ref</th><th>Trigger</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody id="payoutHistory"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;font-family:var(--mono);font-size:11px;">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CRASH DETECTION + CLAIM FLOW -->
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">📡 Your Live Sensor</div>
+        <div class="card-sub">Accelerometer monitoring · Auto-claim on crash</div>
+        <div class="gyro-ring">
+          <svg viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="40" stroke="rgba(99,102,241,0.2)" stroke-width="4"/>
+            <path d="M50 10 A40 40 0 0 1 90 50" stroke="var(--indigo)" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="50" cy="10" r="5" fill="var(--cyan)"/>
+          </svg>
+        </div>
+        <div class="gyro-val" id="gyroVal">0.2G</div>
+        <div style="font-size:9px;color:var(--muted);text-align:center;font-family:var(--mono);margin:4px 0 14px;">G-FORCE (simulated)</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">X-AXIS</div>
+        <div class="a-bar"><div class="a-fill" id="axX" style="width:20%;"></div></div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">Y-AXIS</div>
+        <div class="a-bar"><div class="a-fill" id="axY" style="width:15%;"></div></div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">Z-AXIS</div>
+        <div class="a-bar"><div class="a-fill" id="axZ" style="width:8%;"></div></div>
+        <button class="btn btn-red" style="width:100%;margin-top:14px;" onclick="simulateCrash()">🔴 Simulate Crash Detection</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚡ Zero-Touch Claim Flow</div>
+        <div class="card-sub">Auto-triggered · No action needed from you</div>
+        <div class="claim-flow">
+          <div class="cs done" id="cs1"><div class="cs-icon">📡</div><div class="cs-label">Sensor</div></div>
+          <div class="ca">→</div>
+          <div class="cs" id="cs2"><div class="cs-icon">🧠</div><div class="cs-label">AI Verify</div></div>
+          <div class="ca">→</div>
+          <div class="cs" id="cs3"><div class="cs-icon">🛡️</div><div class="cs-label">Fraud Gate</div></div>
+          <div class="ca">→</div>
+          <div class="cs" id="cs4"><div class="cs-icon">💸</div><div class="cs-label">Payout</div></div>
+          <div class="ca">→</div>
+          <div class="cs" id="cs5"><div class="cs-icon">📲</div><div class="cs-label">Notify</div></div>
+        </div>
+        <div class="card-title" style="margin-top:16px;">📋 Coverage Details</div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-top:8px;">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="color:var(--muted);">Rain ≥ 20mm/hr</span><span style="font-family:var(--mono);color:var(--green-b);font-weight:700;">₹500</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="color:var(--muted);">Rain ≥ 12mm/hr</span><span style="font-family:var(--mono);color:var(--green-b);font-weight:700;">₹150</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="color:var(--muted);">AQI ≥ 300</span><span style="font-family:var(--mono);color:var(--green-b);font-weight:700;">₹500</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="color:var(--muted);">Swarm Gridlock</span><span style="font-family:var(--mono);color:var(--green-b);font-weight:700;">₹250</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:11px;"><span style="color:var(--muted);">Crash / Pothole</span><span style="font-family:var(--mono);color:var(--green-b);font-weight:700;">₹200–₹1,500</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let riderId = '';
+let inCrash = false;
+let gyroTimer;
+
+function getParam(name) {
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+function logout() {
+  window.location.href = '/login.html';
+}
+
+function showToast(msg, type='') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+function pill(status) {
+  const m = { success:'pill-green', pending:'pill-amber', held:'pill-red', active:'pill-green', flagged:'pill-red', Low:'pill-green', Medium:'pill-blue', High:'pill-amber', Critical:'pill-red' };
+  return `<span class="pill ${m[status]||'pill-indigo'}">${status}</span>`;
+}
+
+async function loadRider() {
+  riderId = getParam('id');
+  if (!riderId) { window.location.href = '/login.html'; return; }
+
+  try {
+    const res = await fetch(`/api/rider/${riderId}`);
+    if (!res.ok) throw new Error();
+    const r = await res.json();
+
+    $('topName').textContent = r.name;
+    $('topId').textContent = r.id + ' · ' + r.platform;
+    $('heroName').textContent = r.name;
+    $('heroPlatform').textContent = r.platform + ' · ' + r.id;
+    $('heroZone').textContent = 'Zone: ' + r.zone;
+    $('statPremium').textContent = '₹' + r.premium;
+    $('statWeekly').textContent = '₹' + r.weeklyPremium + '/week ML-adjusted';
+    $('statClaims').textContent = r.claims;
+    $('statRisk').textContent = r.risk;
+    $('statRisk').style.color = {Low:'var(--green-b)',Medium:'var(--cyan)',High:'var(--amber)',Critical:'var(--red)'}[r.risk]||'var(--dim)';
+
+    // Payouts
+    if (r.payouts && r.payouts.length > 0) {
+      $('payoutHistory').innerHTML = r.payouts.map(p => `<tr>
+        <td style="font-family:var(--mono);font-size:10px;color:var(--muted);">${p.ref}</td>
+        <td style="font-size:11px;">${p.trigger}</td>
+        <td style="font-family:var(--mono);color:var(--green-b);font-weight:700;">₹${p.amt}</td>
+        <td>${pill(p.status)}</td>
+      </tr>`).join('');
+    } else {
+      $('payoutHistory').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;font-family:var(--mono);font-size:11px;">No payouts yet</td></tr>';
+    }
+
+    await loadPricing();
+    $('loading').style.display = 'none';
+    $('app').style.display = 'block';
+    startSensorSim();
+  } catch(e) {
+    $('loading').innerHTML = '<div style="color:#f87171;font-family:var(--mono);font-size:13px;">Failed to load rider data. <a href="/login.html" style="color:#818cf8;">Go back</a></div>';
+  }
+}
+
+async function loadPricing() {
+  try {
+    const res = await fetch(`/api/ml-pricing/${riderId}`);
+    const p = await res.json();
+    $('finalPremium').textContent = p.finalPremium;
+    $('premiumResult').style.display = 'block';
+    const colors = ['var(--red)','var(--amber)','var(--red)','var(--amber)','var(--green)'];
+    $('pricingFactors').innerHTML = p.factors.map((f, i) => `
+      <div class="pricing-row">
+        <div style="width:160px;color:var(--dim);font-size:11px;">${f.label}</div>
+        <div class="pr-bar"><div class="pr-fill" style="width:${Math.abs(f.effect)*12}%;background:${colors[i]||'var(--indigo)'}"></div></div>
+        <div style="width:40px;text-align:right;font-family:var(--mono);font-size:11px;font-weight:600;color:${f.effect>0?'var(--red)':'var(--green-b)'};">${f.effect>0?'+':''}₹${f.effect}</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// ── SENSOR SIMULATION ──
+function setSensor(g, x, y, z) {
+  const gv = $('gyroVal');
+  gv.textContent = g.toFixed(1) + 'G';
+  gv.className = 'gyro-val' + (g > 4 ? ' danger' : '');
+  $('axX').style.width = x + '%'; $('axY').style.width = y + '%'; $('axZ').style.width = z + '%';
+  const cls = g > 4 ? 'critical' : g > 2 ? 'high' : '';
+  [$('axX'), $('axY'), $('axZ')].forEach(el => { el.className = 'a-fill' + (cls ? ' ' + cls : ''); });
+}
+
+function startSensorSim() {
+  let t = 0;
+  clearInterval(gyroTimer);
+  gyroTimer = setInterval(() => {
+    if (inCrash) return;
+    t += 0.1;
+    setSensor(0.3 + Math.sin(t) * 0.2 + Math.random() * 0.1, 20 + Math.sin(t) * 8, 15 + Math.cos(t) * 6, 8 + Math.sin(t * 2) * 4);
+  }, 300);
+}
+
+async function simulateCrash() {
+  inCrash = true;
+  const steps = ['cs1','cs2','cs3','cs4','cs5'];
+  steps.forEach(s => { const el = $(s); el.classList.remove('done'); el.style.cssText = ''; });
+  $('cs1').classList.add('done');
+
+  showToast('⚡ CRASH DETECTED — 6.2G spike!', 'critical');
+
+  // ramp up G
+  let peak = 0;
+  const ramp = setInterval(() => {
+    peak = Math.min(peak + 0.8, 6.2);
+    setSensor(peak, Math.min(30 + peak * 10, 100), Math.min(40 + peak * 8, 100), Math.min(20 + peak * 15, 100));
+    if (peak >= 6.2) clearInterval(ramp);
+  }, 80);
+
+  // call backend
+  try {
+    await fetch('/api/sensor/crash', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ riderId, gForce: 6.2, event: 'crash' })
+    });
+  } catch(e) {}
+
+  const msgs = ['🧠 AI verifying context…', '🛡️ Checking device fingerprint…', '💸 Disbursing ₹1,500…', '📲 Notification sent!'];
+  let si = 1;
+  const adv = setInterval(() => {
+    $(steps[si]).style.cssText = 'background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);';
+    showToast(msgs[si - 1]);
+    setTimeout(() => {
+      $(steps[si]).style.cssText = 'background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25);';
+      si++;
+      if (si >= steps.length) { clearInterval(adv); inCrash = false; startSensorSim(); showToast('✓ ₹1,500 disbursed in 4.2s — Zero touch!'); }
+    }, 900);
+  }, 1200);
+}
+
+loadRider();
+</script>
+</body>
+</html>
