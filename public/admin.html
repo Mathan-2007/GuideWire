@@ -205,6 +205,8 @@ main {
 }
 
 /* ─── TOPBAR ─── */
+.logout-btn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.2s;}
+.logout-btn:hover{background:rgba(239,68,68,0.2);}
 .topbar {
   display:flex; align-items:center; justify-content:space-between;
   padding:16px 28px;
@@ -695,7 +697,7 @@ main {
         <option>Hyderabad</option><option>Chennai</option><option>Pune</option>
       </select>
       <button class="btn-primary" onclick="doRefresh()">↻ Refresh</button>
-      <button class="btn-danger" onclick="logout()">← Logout</button>
+      <button class="logout-btn" onclick="logout()">← Logout</button>
     </div>
   </div>
 
