@@ -695,6 +695,7 @@ main {
         <option>Hyderabad</option><option>Chennai</option><option>Pune</option>
       </select>
       <button class="btn-primary" onclick="doRefresh()">↻ Refresh</button>
+      <button class="btn-danger" onclick="logout()">← Logout</button>
     </div>
   </div>
 
@@ -1596,6 +1597,10 @@ function renderRiders() {
   </tr>`).join('');
 }
 
+function logout() {
+  window.location.href = '/login.html';
+}
+  
 function openRiderModal(r) {
   $('mName').textContent = r.name;
   $('mId').textContent = `${r.id} · ${r.platform}`;
