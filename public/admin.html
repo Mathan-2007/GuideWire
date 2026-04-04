@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kavach.ai — Intelligent Gig Worker Protection</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050810;
+  --bg2: #080c18;
+  --surface: #0b1120;
+  --surface2: #0f1628;
+  --surface3: #131d35;
+  --border: rgba(100,180,255,0.08);
+  --border2: rgba(100,180,255,0.16);
+  --border3: rgba(100,180,255,0.28);
+  --indigo: #6366f1;
+  --indigo-bright: #818cf8;
+  --violet: #8b5cf6;
+  --blue: #3b82f6;
+  --blue-bright: #60a5fa;
+  --cyan: #22d3ee;
+  --teal: #14b8a6;
+  --green: #10b981;
+  --green-bright: #34d399;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --rose: #f43f5e;
+  --orange: #f97316;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-muted: #475569;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Outfit', sans-serif;
+  --display: 'Syne', sans-serif;
+  --glow-indigo: 0 0 30px rgba(99,102,241,0.15);
+  --glow-cyan: 0 0 30px rgba(34,211,238,0.15);
+  --glow-green: 0 0 30px rgba(16,185,129,0.12);
+  --glow-red: 0 0 30px rgba(239,68,68,0.12);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+  font-size:14px;
+  position:relative;
+}
+
+/* GRID BACKGROUND */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(100,180,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100,180,255,0.025) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* AMBIENT GLOW ORBS */
+.orb {
+  position:fixed; border-radius:50%; pointer-events:none; z-index:0;
+  filter:blur(80px); opacity:0.35;
+}
+.orb-1 { width:500px;height:500px;background:radial-gradient(circle,var(--indigo),transparent 70%);top:-150px;left:-100px; }
+.orb-2 { width:400px;height:400px;background:radial-gradient(circle,var(--cyan),transparent 70%);bottom:-100px;right:200px;opacity:0.2; }
+.orb-3 { width:300px;height:300px;background:radial-gradient(circle,var(--violet),transparent 70%);top:40%;left:40%;opacity:0.1; }
+
+/* ─── SIDEBAR ─── */
+aside {
+  width:230px; min-width:230px;
+  background:rgba(11,17,32,0.95);
+  border-right:1px solid var(--border2);
+  display:flex; flex-direction:column;
+  padding:0;
+  position:relative; z-index:10;
+  backdrop-filter:blur(20px);
+}
+
+.logo-wrap {
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.logo {
+  font-family:var(--display);
+  font-size:18px;
+  font-weight:800;
+  background:linear-gradient(135deg, #818cf8, #22d3ee);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:-0.5px;
+  display:flex; align-items:center; gap:8px;
+}
+.logo-icon {
+  width:28px; height:28px;
+  background:linear-gradient(135deg, var(--indigo), var(--cyan));
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px;
+  flex-shrink:0;
+  box-shadow:0 0 20px rgba(99,102,241,0.4);
+  animation:iconPulse 3s ease-in-out infinite;
+}
+@keyframes iconPulse {
+  0%,100%{box-shadow:0 0 20px rgba(99,102,241,0.4);}
+  50%{box-shadow:0 0 35px rgba(34,211,238,0.5);}
+}
+.logo-tagline {
+  font-size:9px;
+  font-family:var(--mono);
+  color:var(--text-muted);
+  letter-spacing:2px;
+  margin-top:4px;
+  text-transform:uppercase;
+}
+
+nav { flex:1; overflow-y:auto; padding:16px 12px; }
+.nav-section { margin-bottom:24px; }
+.nav-section-label {
+  font-size:9px;
+  font-family:var(--mono);
+  color:var(--text-muted);
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  padding:0 8px 8px;
+}
+.nav-btn {
+  display:flex; align-items:center; gap:10px;
+  width:100%; padding:10px 12px;
+  border-radius:10px;
+  border:none; background:transparent; color:var(--text-dim);
+  font-family:var(--sans); font-size:13px; font-weight:500;
+  cursor:pointer; transition:all 0.2s; text-align:left;
+  position:relative; margin-bottom:1px;
+}
+.nav-btn:hover { background:rgba(99,102,241,0.08); color:var(--text); }
+.nav-btn.active {
+  background:linear-gradient(135deg, rgba(99,102,241,0.15), rgba(34,211,238,0.05));
+  color:var(--indigo-bright);
+  border:1px solid rgba(99,102,241,0.2);
+}
+.nav-btn.active .nav-icon { filter:drop-shadow(0 0 6px currentColor); }
+.nav-icon { width:18px; text-align:center; font-size:14px; }
+.nav-badge {
+  margin-left:auto;
+  font-size:9px; font-family:var(--mono);
+  background:linear-gradient(135deg, var(--rose), var(--orange));
+  color:#fff; border-radius:10px;
+  padding:2px 7px; font-weight:700;
+  animation:badgePulse 2s infinite;
+}
+.nav-badge.green { background:linear-gradient(135deg, var(--teal), var(--green)); }
+@keyframes badgePulse { 0%,100%{opacity:1} 50%{opacity:0.65} }
+
+.sidebar-footer {
+  padding:16px 16px 20px;
+  border-top:1px solid var(--border);
+}
+.system-status {
+  display:flex; align-items:center; gap:8px;
+  font-size:11px; color:var(--green-bright);
+  font-weight:600;
+}
+.pulse-ring {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--green);
+  position:relative;
+  flex-shrink:0;
+}
+.pulse-ring::after {
+  content:''; position:absolute;
+  inset:-3px; border-radius:50%;
+  border:2px solid var(--green);
+  animation:ringPulse 1.5s ease-out infinite;
+  opacity:0;
+}
+@keyframes ringPulse { 0%{opacity:0.8;transform:scale(0.8)} 100%{opacity:0;transform:scale(1.8)} }
+.sys-time { font-size:10px; color:var(--text-muted); font-family:var(--mono); margin-top:6px; }
+.ai-model-chip {
+  margin-top:8px;
+  font-size:9px; font-family:var(--mono);
+  color:var(--indigo-bright);
+  background:rgba(99,102,241,0.1);
+  border:1px solid rgba(99,102,241,0.2);
+  padding:3px 8px; border-radius:6px;
+  display:inline-block;
+  letter-spacing:1px;
+}
+
+/* ─── MAIN ─── */
+main {
+  flex:1; overflow-y:auto;
+  display:flex; flex-direction:column;
+  position:relative; z-index:1;
+  background:transparent;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 28px;
+  border-bottom:1px solid var(--border);
+  background:rgba(8,12,24,0.9);
+  backdrop-filter:blur(20px);
+  position:sticky; top:0; z-index:20;
+}
+.topbar-left h1 { font-family:var(--display); font-size:17px; font-weight:700; letter-spacing:-0.3px; }
+.topbar-left p { font-size:11px; color:var(--text-muted); font-family:var(--mono); margin-top:2px; }
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.time-display {
+  font-family:var(--mono); font-size:11px; color:var(--cyan);
+  background:rgba(34,211,238,0.06);
+  border:1px solid rgba(34,211,238,0.15);
+  padding:5px 12px; border-radius:20px;
+  letter-spacing:0.5px;
+}
+.city-select {
+  background:var(--surface3); border:1px solid var(--border2);
+  color:var(--text); font-family:var(--sans); font-size:12px;
+  padding:7px 14px; border-radius:10px; cursor:pointer; outline:none;
+  appearance:none; -webkit-appearance:none;
+}
+.btn-primary {
+  background:linear-gradient(135deg, var(--indigo), var(--violet));
+  color:#fff; border:none; padding:7px 16px; border-radius:10px;
+  font-size:12px; font-weight:600; cursor:pointer;
+  font-family:var(--sans); transition:all 0.2s;
+  box-shadow:0 4px 15px rgba(99,102,241,0.3);
+  display:flex; align-items:center; gap:6px;
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(99,102,241,0.4); }
+
+/* ─── PAGES ─── */
+.page { display:none; padding:24px 28px; animation:fadeIn 0.25s ease; }
+.page.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── FEED TICKER ─── */
+.feed-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:20px; scrollbar-width:none; }
+.feed-row::-webkit-scrollbar { display:none; }
+.feed-chip {
+  flex-shrink:0; font-size:10px; font-family:var(--mono);
+  padding:5px 12px; border-radius:20px;
+  display:flex; align-items:center; gap:7px;
+  border:1px solid;
+  white-space:nowrap;
+}
+.fc-live { background:rgba(16,185,129,0.08); border-color:rgba(16,185,129,0.25); color:var(--green-bright); }
+.fc-warn { background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25); color:#fbbf24; }
+.fc-err  { background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.25); color:#f87171; }
+.fc-new  { background:rgba(99,102,241,0.08); border-color:rgba(99,102,241,0.25); color:var(--indigo-bright); }
+.fd { width:5px; height:5px; border-radius:50%; animation:pulse 1.5s infinite; }
+.fd-g{background:var(--green)} .fd-y{background:var(--amber)} .fd-r{background:var(--red)} .fd-i{background:var(--indigo)}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+/* ─── KPI GRID ─── */
+.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.kpi-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px; padding:20px;
+  position:relative; overflow:hidden;
+  transition:all 0.25s;
+  cursor:default;
+}
+.kpi-card::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.02), transparent);
+  pointer-events:none;
+}
+.kpi-card:hover {
+  transform:translateY(-3px);
+  border-color:var(--border3);
+}
+.kpi-card .accent-bar {
+  position:absolute; bottom:0; left:10%; right:10%; height:2px;
+  border-radius:2px 2px 0 0;
+  opacity:0.7;
+}
+.kpi-icon { position:absolute; right:14px; top:14px; font-size:22px; opacity:0.12; }
+.kpi-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:600; }
+.kpi-val {
+  font-family:var(--display); font-size:26px; font-weight:800;
+  margin:8px 0 4px; letter-spacing:-1px;
+}
+.kpi-delta { font-size:11px; display:flex; align-items:center; gap:4px; font-weight:500; }
+.kpi-sub { font-size:10px; color:var(--text-muted); font-family:var(--mono); margin-top:2px; }
+.clr-indigo{color:var(--indigo-bright)} .clr-green{color:var(--green-bright)} .clr-red{color:#f87171} .clr-cyan{color:var(--cyan)} .clr-amber{color:#fbbf24} .clr-violet{color:#c084fc}
+
+/* ─── CARDS ─── */
+.card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px; padding:20px;
+  position:relative; overflow:hidden;
+}
+.card::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(160deg, rgba(255,255,255,0.015), transparent 60%);
+  pointer-events:none;
+}
+.card-title {
+  font-family:var(--display); font-size:13px; font-weight:700;
+  margin-bottom:3px; letter-spacing:-0.2px;
+}
+.card-sub { font-size:11px; color:var(--text-muted); margin-bottom:16px; font-family:var(--mono); }
+
+/* ─── GRID LAYOUTS ─── */
+.row { display:grid; gap:14px; margin-bottom:14px; }
+.g-3-1 { grid-template-columns:3fr 1fr; }
+.g-2-1 { grid-template-columns:2fr 1fr; }
+.g-2   { grid-template-columns:1fr 1fr; }
+.g-3   { grid-template-columns:1fr 1fr 1fr; }
+.g-1-2 { grid-template-columns:1fr 2fr; }
+
+/* ─── STATUS PILLS ─── */
+.pill {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:9px; font-weight:700; font-family:var(--mono);
+  padding:3px 9px; border-radius:20px;
+  text-transform:uppercase; letter-spacing:0.8px;
+  border:1px solid;
+}
+.pill-green { background:rgba(16,185,129,0.1); color:#34d399; border-color:rgba(16,185,129,0.3); }
+.pill-red { background:rgba(239,68,68,0.1); color:#f87171; border-color:rgba(239,68,68,0.3); }
+.pill-amber { background:rgba(245,158,11,0.1); color:#fbbf24; border-color:rgba(245,158,11,0.3); }
+.pill-blue { background:rgba(59,130,246,0.1); color:#60a5fa; border-color:rgba(59,130,246,0.3); }
+.pill-indigo { background:rgba(99,102,241,0.1); color:#818cf8; border-color:rgba(99,102,241,0.3); }
+.pill-cyan { background:rgba(34,211,238,0.1); color:#22d3ee; border-color:rgba(34,211,238,0.3); }
+.pill-violet { background:rgba(139,92,246,0.1); color:#c084fc; border-color:rgba(139,92,246,0.3); }
+
+/* ─── TABLE ─── */
+.data-table { width:100%; border-collapse:collapse; }
+.data-table th {
+  font-size:10px; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:1px; font-weight:700;
+  padding:8px 12px; text-align:left;
+  border-bottom:1px solid var(--border2);
+  font-family:var(--mono);
+}
+.data-table td {
+  padding:11px 12px;
+  border-bottom:1px solid var(--border);
+  font-size:12px; vertical-align:middle;
+}
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:hover td { background:rgba(99,102,241,0.03); }
+
+/* ─── BUTTONS ─── */
+.btn { border:none; cursor:pointer; font-family:var(--sans); border-radius:8px; transition:all 0.15s; }
+.btn-xs {
+  font-size:10px; font-weight:700; padding:4px 10px;
+  font-family:var(--mono); text-transform:uppercase; letter-spacing:0.5px;
+}
+.btn-sm { font-size:11px; font-weight:600; padding:6px 14px; }
+.btn-ghost-red { background:rgba(239,68,68,0.1); color:#f87171; }
+.btn-ghost-red:hover { background:rgba(239,68,68,0.22); }
+.btn-ghost-amber { background:rgba(245,158,11,0.1); color:#fbbf24; }
+.btn-ghost-amber:hover { background:rgba(245,158,11,0.22); }
+.btn-ghost-green { background:rgba(16,185,129,0.1); color:#34d399; }
+.btn-ghost-green:hover { background:rgba(16,185,129,0.22); }
+.btn-ghost-blue { background:rgba(59,130,246,0.1); color:#60a5fa; }
+.btn-ghost-blue:hover { background:rgba(59,130,246,0.22); }
+.btn-ghost-indigo { background:rgba(99,102,241,0.1); color:#818cf8; }
+.btn-ghost-indigo:hover { background:rgba(99,102,241,0.22); }
+.btn-ghost-violet { background:rgba(139,92,246,0.1); color:#c084fc; }
+.btn-ghost-violet:hover { background:rgba(139,92,246,0.22); }
+
+/* ─── BAR CHART ─── */
+.bar-chart { display:flex; align-items:flex-end; gap:6px; height:110px; }
+.bc-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bc-bars { display:flex; gap:2px; align-items:flex-end; height:100px; }
+.bc-bar { flex:1; border-radius:4px 4px 0 0; cursor:pointer; transition:opacity 0.2s; min-width:8px; }
+.bc-bar:hover { opacity:0.75; }
+.bc-label { font-size:9px; color:var(--text-muted); font-family:var(--mono); }
+
+/* ─── DONUT ─── */
+.donut-wrap { display:flex; align-items:center; justify-content:center; gap:18px; }
+.donut-legend { display:flex; flex-direction:column; gap:9px; }
+.legend-row { display:flex; align-items:center; gap:8px; font-size:11px; }
+.legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* ─── SWARM INTELLIGENCE PAGE ─── */
+.swarm-map {
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:14px; height:320px;
+  position:relative; overflow:hidden;
+}
+.swarm-grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(34,211,238,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,0.04) 1px, transparent 1px);
+  background-size:30px 30px;
+}
+.swarm-rider {
+  position:absolute; width:6px; height:6px;
+  border-radius:50%; cursor:pointer;
+  transition:transform 0.3s ease;
+}
+.swarm-rider:hover { transform:scale(2.5); }
+.swarm-rider.normal { background:var(--green); box-shadow:0 0 6px var(--green); }
+.swarm-rider.slow { background:var(--amber); box-shadow:0 0 6px var(--amber); }
+.swarm-rider.stalled { background:var(--red); box-shadow:0 0 8px var(--red); animation:stallPulse 1s infinite; }
+@keyframes stallPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.swarm-cluster {
+  position:absolute; border-radius:50%;
+  background:rgba(239,68,68,0.12);
+  border:2px solid rgba(239,68,68,0.4);
+  animation:clusterPulse 2s ease-out infinite;
+  pointer-events:none;
+}
+@keyframes clusterPulse {
+  0%{transform:scale(0.9);opacity:0.8}
+  100%{transform:scale(1.3);opacity:0}
+}
+.map-label {
+  position:absolute; font-size:9px; font-family:var(--mono);
+  color:var(--text-muted); pointer-events:none;
+}
+.cluster-alert {
+  position:absolute; background:rgba(239,68,68,0.9);
+  color:#fff; font-size:10px; font-family:var(--mono);
+  padding:4px 10px; border-radius:20px;
+  font-weight:700; display:flex; align-items:center; gap:5px;
+  animation:alertFloat 0.4s ease;
+}
+@keyframes alertFloat { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* ─── SWARM METRICS ─── */
+.swarm-metric {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:12px; padding:14px;
+  display:flex; align-items:center; gap:12px;
+}
+.swarm-metric-icon { font-size:20px; }
+.swarm-metric-val { font-family:var(--display); font-size:22px; font-weight:800; }
+.swarm-metric-label { font-size:10px; color:var(--text-muted); font-family:var(--mono); }
+
+/* ─── PREDICTIVE ROUTING ─── */
+.route-card {
+  background:linear-gradient(135deg, rgba(99,102,241,0.08), rgba(34,211,238,0.04));
+  border:1px solid rgba(99,102,241,0.2);
+  border-radius:14px; padding:16px; margin-bottom:12px;
+  position:relative; overflow:hidden;
+}
+.route-card::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--indigo), var(--cyan));
+}
+.route-card.urgent::after { background:linear-gradient(90deg, var(--rose), var(--orange)); }
+.route-card.urgent { border-color:rgba(244,63,94,0.25); background:linear-gradient(135deg, rgba(244,63,94,0.06), rgba(249,115,22,0.03)); }
+.route-timer {
+  font-family:var(--mono); font-size:20px; font-weight:700;
+  color:var(--rose); animation:timerBlink 1s step-start infinite;
+}
+@keyframes timerBlink { 50%{opacity:0.5} }
+.route-bonus { font-family:var(--display); font-size:24px; font-weight:800; color:var(--green-bright); }
+
+/* ─── CRASH DETECTION ─── */
+.sensor-panel {
+  background:var(--surface2); border-radius:12px; padding:16px;
+  border:1px solid var(--border);
+}
+.gyro-ring {
+  width:100px; height:100px; position:relative;
+  margin:0 auto 12px;
+}
+.gyro-ring svg { width:100%; height:100%; animation:gyroSpin 4s linear infinite; }
+@keyframes gyroSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.gyro-val {
+  font-family:var(--mono); font-size:28px; font-weight:700; text-align:center;
+  color:var(--green-bright); transition:color 0.3s;
+}
+.gyro-val.danger { color:var(--red); animation:dangerFlash 0.5s ease infinite alternate; }
+@keyframes dangerFlash { from{color:var(--red)} to{color:var(--rose)} }
+.accel-bar { height:8px; border-radius:4px; background:var(--surface3); overflow:hidden; margin-bottom:8px; }
+.accel-fill {
+  height:100%; border-radius:4px;
+  background:linear-gradient(90deg, var(--green), var(--cyan));
+  transition:width 0.5s ease;
+}
+.accel-fill.high { background:linear-gradient(90deg, var(--amber), var(--orange)); }
+.accel-fill.critical { background:linear-gradient(90deg, var(--red), var(--rose)); animation:barPulse 0.3s infinite alternate; }
+@keyframes barPulse { to{opacity:0.6} }
+
+/* ─── ML PRICING ─── */
+.pricing-factor {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 0; border-bottom:1px solid var(--border);
+  font-size:12px;
+}
+.pricing-factor:last-child { border-bottom:none; }
+.factor-bar-wrap { flex:1; height:4px; background:var(--surface3); border-radius:4px; overflow:hidden; }
+.factor-bar { height:100%; border-radius:4px; transition:width 0.8s ease; }
+.factor-label { width:140px; color:var(--text-dim); font-size:11px; }
+.factor-val { width:50px; text-align:right; font-family:var(--mono); font-size:11px; font-weight:600; }
+
+/* ─── CLAIM ENGINE ─── */
+.claim-flow { display:flex; align-items:center; gap:0; margin:16px 0; }
+.claim-step {
+  flex:1; text-align:center; padding:12px 8px;
+  border-radius:10px; position:relative;
+  background:var(--surface2); border:1px solid var(--border);
+  transition:all 0.3s;
+}
+.claim-step.done { background:rgba(16,185,129,0.08); border-color:rgba(16,185,129,0.25); }
+.claim-step.active { background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.3); animation:stepPulse 1.5s ease infinite; }
+@keyframes stepPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 20px rgba(99,102,241,0.2)} }
+.claim-arrow {
+  width:24px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text-muted); font-size:12px; z-index:1;
+}
+.claim-step-icon { font-size:18px; margin-bottom:4px; }
+.claim-step-label { font-size:10px; font-weight:700; font-family:var(--mono); text-transform:uppercase; letter-spacing:0.5px; }
+.claim-step-time { font-size:9px; color:var(--text-muted); margin-top:2px; }
+
+/* ─── ZONE TABLE INLINE ─── */
+.zone-row { display:flex; align-items:center; gap:0; padding:10px 0; border-bottom:1px solid var(--border); }
+.zone-row:last-child { border-bottom:none; }
+
+/* ─── FRAUD ─── */
+.fraud-item {
+  background:var(--surface2);
+  border-left:3px solid var(--amber);
+  border-radius:0 12px 12px 0; padding:14px 16px;
+  margin-bottom:10px; transition:all 0.2s;
+}
+.fraud-item:hover { border-color:var(--orange); background:rgba(245,158,11,0.05); }
+.fraud-item.critical { border-left-color:var(--red); }
+.fraud-item.low { border-left-color:var(--blue); }
+
+/* ─── CONFIG INPUTS ─── */
+.cfg-input {
+  background:var(--surface3); border:1px solid var(--border2);
+  color:var(--text); font-family:var(--mono); font-size:12px;
+  padding:7px 12px; border-radius:8px;
+  width:140px; outline:none; text-align:right;
+  transition:border-color 0.2s;
+}
+.cfg-input:focus { border-color:var(--indigo); box-shadow:0 0 0 3px rgba(99,102,241,0.1); }
+
+/* ─── TOAST ─── */
+.toast {
+  position:fixed; bottom:28px; right:28px; z-index:999;
+  background:var(--surface2);
+  border:1px solid var(--green); color:var(--green-bright);
+  padding:12px 20px; border-radius:12px;
+  font-size:12px; font-weight:600; font-family:var(--mono);
+  display:none;
+  box-shadow:var(--glow-green), 0 8px 30px rgba(0,0,0,0.4);
+  animation:toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  max-width:320px;
+}
+@keyframes toastIn { from{transform:translateX(40px) scale(0.9);opacity:0} to{transform:none;opacity:1} }
+.toast.warn { border-color:var(--amber); color:#fbbf24; }
+.toast.critical { border-color:var(--red); color:#f87171; box-shadow:var(--glow-red),0 8px 30px rgba(0,0,0,0.4); }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(5,8,16,0.8); z-index:100;
+  align-items:center; justify-content:center;
+  backdrop-filter:blur(8px);
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--surface); border:1px solid var(--border3);
+  border-radius:20px; padding:28px; width:520px;
+  max-width:95vw; max-height:85vh; overflow-y:auto;
+  position:relative;
+  box-shadow:0 0 60px rgba(99,102,241,0.15), 0 20px 60px rgba(0,0,0,0.5);
+}
+.modal-close {
+  position:absolute; top:18px; right:18px;
+  background:var(--surface3); border:1px solid var(--border2);
+  color:var(--text-dim); font-size:16px; cursor:pointer;
+  width:30px; height:30px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.modal-close:hover { background:var(--red); color:#fff; border-color:var(--red); }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border3); border-radius:4px; }
+
+/* ─── SPECIAL FEATURE BADGE ─── */
+.feature-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:9px; font-family:var(--mono);
+  background:linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15));
+  border:1px solid rgba(139,92,246,0.3); color:#c084fc;
+  padding:3px 10px; border-radius:20px;
+  text-transform:uppercase; letter-spacing:1px; font-weight:700;
+}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:1100px) { .kpi-grid{grid-template-columns:repeat(2,1fr);} .g-3-1,.g-2-1{grid-template-columns:1fr;} }
+@media(max-width:800px) { aside{display:none;} .kpi-grid{grid-template-columns:1fr 1fr;} }
+</style>
+</head>
+<body>
+
+<!-- AMBIENT -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside>
+  <div class="logo-wrap">
+    <div class="logo">
+      <div class="logo-icon">🛡️</div>
+      Kavach.ai
+    </div>
+    <div class="logo-tagline">Intelligent gig protection</div>
+  </div>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-label">Intelligence</div>
+      <button class="nav-btn active" onclick="navigate('analytics',this)">
+        <span class="nav-icon">⬡</span> Analytics
+      </button>
+      <button class="nav-btn" onclick="navigate('swarm',this)">
+        <span class="nav-icon">🌐</span> Swarm Engine
+        <span class="nav-badge green" id="swarmBadge">LIVE</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('routing',this)">
+        <span class="nav-icon">🗺️</span> Pre-Routing AI
+      </button>
+      <button class="nav-btn" onclick="navigate('crash',this)">
+        <span class="nav-icon">📡</span> Crash Detect
+        <span class="nav-badge" id="crashBadge">2</span>
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Operations</div>
+      <button class="nav-btn" onclick="navigate('triggers',this)">
+        <span class="nav-icon">⚡</span> Triggers
+        <span class="nav-badge" id="trigBadge">3</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('fraud',this)">
+        <span class="nav-icon">🛡️</span> Fraud AI
+        <span class="nav-badge" id="fraudBadge">2</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('riders',this)">
+        <span class="nav-icon">🛵</span> Riders
+      </button>
+      <button class="nav-btn" onclick="navigate('payouts',this)">
+        <span class="nav-icon">💸</span> Payouts
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Settings</div>
+      <button class="nav-btn" onclick="navigate('pricing',this)">
+        <span class="nav-icon">🧠</span> ML Pricing
+      </button>
+      <button class="nav-btn" onclick="navigate('config',this)">
+        <span class="nav-icon">⚙️</span> Config
+      </button>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="system-status"><div class="pulse-ring"></div> All Systems Live</div>
+    <div class="sys-time" id="sideDate">—</div>
+    <div class="ai-model-chip">🤖 KAVACH-ML v2.1</div>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="pageTitle">Analytics Dashboard</h1>
+      <p id="pageSub">Real-time parametric insurance intelligence · Kavach.ai</p>
+    </div>
+    <div class="topbar-right">
+      <div class="time-display" id="topTime">—</div>
+      <select class="city-select" id="citySelect" onchange="refreshCity()">
+        <option>Mumbai</option><option>Bengaluru</option><option>Delhi</option>
+        <option>Hyderabad</option><option>Chennai</option><option>Pune</option>
+      </select>
+      <button class="btn-primary" onclick="doRefresh()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: ANALYTICS ══════ -->
+  <div class="page active" id="page-analytics">
+    <div class="feed-row">
+      <div class="feed-chip fc-live"><div class="fd fd-g"></div>OpenWeatherMap: LIVE</div>
+      <div class="feed-chip fc-live"><div class="fd fd-g"></div>AQI-India: LIVE</div>
+      <div class="feed-chip fc-warn"><div class="fd fd-y"></div>NewsAPI: 320ms latency</div>
+      <div class="feed-chip fc-live"><div class="fd fd-g"></div>GPS Telemetry: LIVE</div>
+      <div class="feed-chip fc-live"><div class="fd fd-g"></div>PayFast: LIVE</div>
+      <div class="feed-chip fc-err"><div class="fd fd-r"></div>NDRF-Alerts: 503</div>
+      <div class="feed-chip fc-new"><div class="fd fd-i"></div>Swarm Engine: ACTIVE</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-label">Active Partners</div>
+        <div class="kpi-val clr-indigo">12,482</div>
+        <div class="kpi-delta" style="color:var(--green)">▲ 12.4% this week</div>
+        <div class="kpi-sub">Swiggy · Zomato · Blinkit</div>
+        <div class="accent-bar" style="background:linear-gradient(90deg,var(--indigo),var(--violet))"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-label">Weekly GWP</div>
+        <div class="kpi-val clr-green">₹5.86L</div>
+        <div class="kpi-delta" style="color:var(--text-dim)">Avg ₹47/rider · ML-adjusted</div>
+        <div class="kpi-sub">3 platforms · Dynamic pricing</div>
+        <div class="accent-bar" style="background:linear-gradient(90deg,var(--green),var(--teal))"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">⚡</div>
+        <div class="kpi-label">Auto Claims (Today)</div>
+        <div class="kpi-val clr-cyan">₹89.4K</div>
+        <div class="kpi-delta" style="color:var(--cyan)">4.2s avg · Zero-touch</div>
+        <div class="kpi-sub">3 trigger events · 100% auto</div>
+        <div class="accent-bar" style="background:linear-gradient(90deg,var(--cyan),var(--blue))"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🧠</div>
+        <div class="kpi-label">ML Loss Ratio</div>
+        <div class="kpi-val clr-violet">19.2%</div>
+        <div class="kpi-delta" style="color:var(--green)">✓ Within 25% threshold</div>
+        <div class="kpi-sub">94.3% fraud accuracy</div>
+        <div class="accent-bar" style="background:linear-gradient(90deg,var(--violet),var(--indigo))"></div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-3-1">
+      <div class="card">
+        <div class="card-title">Weekly GWP &amp; Claims</div>
+        <div class="card-sub">Last 8 weeks · ₹ in thousands · ML-forecast shown</div>
+        <div class="bar-chart" id="weeklyChart"></div>
+        <div style="display:flex;gap:16px;margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-muted)"><span style="width:10px;height:10px;background:var(--indigo);border-radius:2px;display:inline-block"></span>GWP</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-muted)"><span style="width:10px;height:10px;background:var(--red);border-radius:2px;display:inline-block"></span>Claims</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-muted)"><span style="width:10px;height:6px;background:var(--cyan);border-radius:2px;display:inline-block;opacity:0.5"></span>ML Forecast</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Platform Mix</div>
+        <div class="card-sub">Active riders</div>
+        <div class="donut-wrap" style="margin-top:8px;">
+          <svg width="88" height="88" viewBox="0 0 88 88">
+            <circle cx="44" cy="44" r="34" fill="none" stroke="var(--border2)" stroke-width="12"/>
+            <circle cx="44" cy="44" r="34" fill="none" stroke="var(--indigo)" stroke-width="12" stroke-dasharray="85 129" stroke-dashoffset="0" transform="rotate(-90 44 44)"/>
+            <circle cx="44" cy="44" r="34" fill="none" stroke="var(--green)" stroke-width="12" stroke-dasharray="58 156" stroke-dashoffset="-85" transform="rotate(-90 44 44)"/>
+            <circle cx="44" cy="44" r="34" fill="none" stroke="var(--cyan)" stroke-width="12" stroke-dasharray="71 143" stroke-dashoffset="-143" transform="rotate(-90 44 44)"/>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-row"><div class="legend-dot" style="background:var(--indigo)"></div><span>Swiggy <b>40%</b></span></div>
+            <div class="legend-row"><div class="legend-dot" style="background:var(--green)"></div><span>Zomato <b>28%</b></span></div>
+            <div class="legend-row"><div class="legend-dot" style="background:var(--cyan)"></div><span>Blinkit <b>32%</b></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone + Fraud -->
+    <div class="row g-3-1">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div class="card-title" style="margin-bottom:0;">Live Zone Monitor — <span id="cityName">Mumbai</span></div>
+          <div class="feature-badge">✦ Parametric</div>
+        </div>
+        <div class="card-sub" style="margin-top:-8px;">Auto-refresh every 60s · Swarm data integrated</div>
+        <table class="data-table">
+          <thead><tr><th>Zone</th><th>Rain</th><th>AQI</th><th>Riders</th><th>Swarm</th><th>Status</th><th></th></tr></thead>
+          <tbody id="zoneBody"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">🛡️ Fraud Alerts</div>
+        <div class="card-sub">AI flagged · 24h</div>
+        <div id="fraudMini"></div>
+        <button class="btn btn-sm btn-ghost-indigo" style="width:100%;margin-top:8px;" onclick="navigate('fraud',document.querySelectorAll('.nav-btn')[5])">View all alerts →</button>
+      </div>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="row g-3">
+      <div class="card">
+        <div class="card-title">💸 Recent Auto-Payouts</div>
+        <div class="card-sub">Parametric · Zero-touch</div>
+        <div id="payoutMini"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 Daily Active Riders</div>
+        <div class="card-sub">14-day trend</div>
+        <svg width="100%" viewBox="0 0 200 50" preserveAspectRatio="none" id="sparkSvg" style="height:70px;margin-top:8px;"></svg>
+      </div>
+      <div class="card">
+        <div class="card-title">🌧️ Trigger Thresholds</div>
+        <div class="card-sub">Active AI config</div>
+        <div id="thresholdList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: SWARM ENGINE ══════ -->
+  <div class="page" id="page-swarm">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div>
+        <h2 style="font-family:var(--display);font-size:16px;font-weight:800;">Swarm Intelligence Engine</h2>
+        <p style="font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:2px;">GPS telemetry · crowdsourced IoT · auto cluster detection</p>
+      </div>
+      <div class="feature-badge" style="margin-left:auto;">✦ Killer Feature A</div>
+      <span class="pill pill-green" id="swarmStatus">MONITORING</span>
+    </div>
+
+    <div class="row g-3" style="margin-bottom:14px;">
+      <div class="swarm-metric">
+        <div class="swarm-metric-icon">🛵</div>
+        <div>
+          <div class="swarm-metric-val clr-indigo" id="swarmTotal">0</div>
+          <div class="swarm-metric-label">Riders online</div>
+        </div>
+      </div>
+      <div class="swarm-metric">
+        <div class="swarm-metric-icon">🐢</div>
+        <div>
+          <div class="swarm-metric-val clr-amber" id="swarmSlow">0</div>
+          <div class="swarm-metric-label">Stalled clusters</div>
+        </div>
+      </div>
+      <div class="swarm-metric">
+        <div class="swarm-metric-icon">⚡</div>
+        <div>
+          <div class="swarm-metric-val clr-green" id="swarmPaid">₹0</div>
+          <div class="swarm-metric-label">Auto-disbursed today</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-2-1">
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:16px 16px 0;margin-bottom:8px;">
+          <div class="card-title">Live GPS Heatmap — <span id="swarmCity">Mumbai</span></div>
+          <div class="card-sub">Each dot = 1 rider · Red cluster = gridlock auto-trigger zone</div>
+        </div>
+        <div class="swarm-map" id="swarmMap">
+          <div class="swarm-grid"></div>
+          <!-- riders injected by JS -->
+        </div>
+        <div style="padding:12px 16px;display:flex;gap:16px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-muted)"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span>Normal &gt;15km/h</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-muted)"><span style="width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block"></span>Slow 5-15km/h</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-muted)"><span style="width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block"></span>Stalled &lt;5km/h</div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title">⚡ Swarm Trigger Logic</div>
+          <div class="card-sub">Auto-fires when threshold met</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:11px;">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Cluster radius</span><span style="font-family:var(--mono);color:var(--cyan)">500m</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Min riders stalled</span><span style="font-family:var(--mono);color:var(--amber)">15 riders</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Speed threshold</span><span style="font-family:var(--mono);color:var(--amber)">&lt; 5 km/h</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Duration</span><span style="font-family:var(--mono);color:var(--red)">20 minutes</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0"><span style="color:var(--text-muted)">Time-loss payout</span><span style="font-family:var(--mono);color:var(--green-bright)">₹250/rider</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Cluster Events Today</div>
+          <div id="clusterLog" style="max-height:180px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: PRE-ROUTING ══════ -->
+  <div class="page" id="page-routing">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div>
+        <h2 style="font-family:var(--display);font-size:16px;font-weight:800;">Predictive Pre-Routing AI</h2>
+        <p style="font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:2px;">Storm prediction → proactive relocation bonuses · Damage prevention</p>
+      </div>
+      <div class="feature-badge" style="margin-left:auto;">✦ Killer Feature B</div>
+    </div>
+
+    <div class="row g-2">
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div class="card-title">🌩️ Live Storm Predictions</div>
+            <span class="pill pill-red">3 ACTIVE</span>
+          </div>
+          <div id="stormCards"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 Routing Effectiveness</div>
+          <div class="card-sub">Riders relocated vs. claims saved</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-muted)">Riders Relocated (Today)</span><span style="font-family:var(--mono);color:var(--cyan);font-weight:700;">127</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-muted)">Bonuses Paid</span><span style="font-family:var(--mono);color:var(--green-bright);font-weight:700;">₹6,350</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-muted)">Claims Prevented (est.)</span><span style="font-family:var(--mono);color:var(--green-bright);font-weight:700;">₹38,100</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:12px;"><span style="color:var(--text-muted)">Prevention ROI</span><span style="font-family:var(--mono);color:var(--violet);font-weight:700;">6.0x</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title">🗺️ Safe Zones — <span id="routingCity">Mumbai</span></div>
+          <div class="card-sub">Predicted safe areas for next 2 hours</div>
+          <div style="position:relative;height:240px;background:var(--surface2);border-radius:10px;overflow:hidden;margin-top:4px;" id="routeMap">
+            <div class="swarm-grid"></div>
+            <div id="routeMapContent"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📲 Rider Notifications Sent</div>
+          <div id="notifList" style="max-height:160px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: CRASH DETECT ══════ -->
+  <div class="page" id="page-crash">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div>
+        <h2 style="font-family:var(--display);font-size:16px;font-weight:800;">Smartphone Crash &amp; Pothole Detector</h2>
+        <p style="font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:2px;">Gyroscope · Accelerometer · Edge telemetry · Zero-touch micro-claims</p>
+      </div>
+      <div class="feature-badge" style="margin-left:auto;">✦ Killer Feature C</div>
+    </div>
+
+    <div class="row g-3" style="margin-bottom:14px;">
+      <div class="card">
+        <div class="card-title">📡 Live Sensor Feed</div>
+        <div class="card-sub">Simulated rider: SW-0011 · Arjun Sharma</div>
+        <div class="gyro-ring">
+          <svg viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="40" stroke="var(--border2)" stroke-width="4"/>
+            <path d="M50 10 A40 40 0 0 1 90 50" stroke="var(--indigo)" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="50" cy="10" r="5" fill="var(--cyan)"/>
+          </svg>
+        </div>
+        <div class="gyro-val" id="gyroVal">0.2G</div>
+        <div style="font-size:10px;color:var(--text-muted);text-align:center;font-family:var(--mono);margin-top:4px;">CURRENT G-FORCE</div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Axis Readings</div>
+        <div class="card-sub">Real-time accelerometer (simulated)</div>
+        <div style="margin-top:8px;">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-family:var(--mono);">X-AXIS (lateral)</div>
+          <div class="accel-bar"><div class="accel-fill" id="axisX" style="width:20%"></div></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-family:var(--mono);">Y-AXIS (longitudinal)</div>
+          <div class="accel-bar"><div class="accel-fill" id="axisY" style="width:15%"></div></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-family:var(--mono);">Z-AXIS (vertical)</div>
+          <div class="accel-bar"><div class="accel-fill" id="axisZ" style="width:8%"></div></div>
+        </div>
+        <button class="btn-primary" style="width:100%;margin-top:12px;justify-content:center;" onclick="simulateCrash()">🔴 Simulate Crash Event</button>
+      </div>
+      <div class="card">
+        <div class="card-title">⚡ Detection Thresholds</div>
+        <div class="card-sub">Auto-claim triggers</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:11px;margin-top:4px;">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Pothole detected</span><span style="font-family:var(--mono);color:var(--amber)">&gt; 1.8G</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Minor skid</span><span style="font-family:var(--mono);color:var(--orange)">&gt; 3.0G</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Crash event</span><span style="font-family:var(--mono);color:var(--red)">&gt; 5.0G</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Pothole payout</span><span style="font-family:var(--mono);color:var(--green)">₹200</span></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0"><span style="color:var(--text-muted)">Crash payout</span><span style="font-family:var(--mono);color:var(--green)">₹1,500</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚡ Zero-Touch Claim Flow</div>
+      <div class="card-sub">Automated pipeline from sensor → disbursement · No rider action required</div>
+      <div class="claim-flow" id="claimFlow">
+        <div class="claim-step done" id="cs1">
+          <div class="claim-step-icon">📡</div>
+          <div class="claim-step-label">Sensor</div>
+          <div class="claim-step-time">Trigger detected</div>
+        </div>
+        <div class="claim-arrow">→</div>
+        <div class="claim-step" id="cs2">
+          <div class="claim-step-icon">🧠</div>
+          <div class="claim-step-label">AI Verify</div>
+          <div class="claim-step-time">Context check</div>
+        </div>
+        <div class="claim-arrow">→</div>
+        <div class="claim-step" id="cs3">
+          <div class="claim-step-icon">🛡️</div>
+          <div class="claim-step-label">Fraud Gate</div>
+          <div class="claim-step-time">Device fingerprint</div>
+        </div>
+        <div class="claim-arrow">→</div>
+        <div class="claim-step" id="cs4">
+          <div class="claim-step-icon">💸</div>
+          <div class="claim-step-label">Payout</div>
+          <div class="claim-step-time">Auto-disburse</div>
+        </div>
+        <div class="claim-arrow">→</div>
+        <div class="claim-step" id="cs5">
+          <div class="claim-step-icon">📲</div>
+          <div class="claim-step-label">Notify</div>
+          <div class="claim-step-time">SMS + App push</div>
+        </div>
+      </div>
+      <div class="card-title" style="margin-top:16px;">📋 Recent Sensor Events</div>
+      <table class="data-table" style="margin-top:8px;">
+        <thead><tr><th>Time</th><th>Rider</th><th>Event</th><th>G-Force</th><th>Claim</th><th>Status</th></tr></thead>
+        <tbody id="sensorLog"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: TRIGGERS ══════ -->
+  <div class="page" id="page-triggers">
+    <div style="padding-bottom:20px;">
+      <div class="card" style="margin-bottom:14px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(34,211,238,0.04));border-color:rgba(99,102,241,0.2);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-size:28px;">⚡</div>
+          <div>
+            <div class="card-title" style="font-size:15px;">Parametric Trigger Engine</div>
+            <div style="font-size:11px;color:var(--text-muted);">5 active triggers · ₹89,400 auto-disbursed today · 4.2s avg processing</div>
+          </div>
+          <div style="margin-left:auto;"><span class="pill pill-green">ENGINE: LIVE</span></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-title">Active Trigger Conditions</div>
+        <div class="card-sub">Toggle on/off · Thresholds in Config</div>
+        <div id="triggerList"></div>
+      </div>
+      <div class="row g-2">
+        <div class="card">
+          <div class="card-title">📋 Today's Trigger Log</div>
+          <div class="card-sub">Auto-processed events</div>
+          <table class="data-table"><thead><tr><th>Time</th><th>Zone</th><th>Trigger</th><th>Riders</th><th>Amount</th><th>Status</th></tr></thead><tbody id="triggerLog"></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-title">📡 API Data Sources</div>
+          <div class="card-sub">Live feed health</div>
+          <div id="apiSources"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: FRAUD ══════ -->
+  <div class="page" id="page-fraud">
+    <div class="row g-2">
+      <div class="card">
+        <div class="card-title">🛡️ Active Fraud Alerts</div>
+        <div class="card-sub">AI anomaly detection · Manual review required</div>
+        <div id="fraudFull"></div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title">📊 This Month</div>
+          <div style="display:flex;flex-direction:column;gap:2px;margin-top:8px;">
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-muted)">Cases Flagged</span><span style="font-family:var(--mono);color:var(--amber);font-weight:700;">47</span></div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-muted)">Confirmed Fraud</span><span style="font-family:var(--mono);color:var(--red);font-weight:700;">12</span></div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-muted)">False Positives</span><span style="font-family:var(--mono);color:var(--text-dim);">23</span></div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-muted)">Fraud Saved</span><span style="font-family:var(--mono);color:var(--green-bright);font-weight:700;">₹2,34,000</span></div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0;font-size:12px;"><span style="color:var(--text-muted)">ML Accuracy</span><span style="font-family:var(--mono);color:var(--cyan);font-weight:700;">94.3%</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔬 Detection Stack</div>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:2px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;"><span>GPS Geofence</span><span class="pill pill-green">ACTIVE</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;"><span>Multi-Platform Cross-check</span><span class="pill pill-green">ACTIVE</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;"><span>Swarm Velocity Anomaly</span><span class="pill pill-green">ACTIVE</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:11px;"><span>Device Fingerprint</span><span class="pill pill-cyan">BETA</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: RIDERS ══════ -->
+  <div class="page" id="page-riders">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div class="card-title" style="margin-bottom:0;">🛵 Rider Database</div>
+        <input id="riderSearch" oninput="renderRiders()" placeholder="Search name or ID…" style="background:var(--surface3);border:1px solid var(--border2);color:var(--text);padding:7px 12px;border-radius:10px;font-size:12px;outline:none;width:200px;font-family:var(--sans);">
+        <div style="margin-left:auto;font-size:11px;color:var(--text-muted);font-family:var(--mono);" id="riderCount"></div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>ID</th><th>Name</th><th>Platform</th><th>Zone</th><th>Claims</th><th>Premium</th><th>ML Risk</th><th>Status</th><th></th></tr></thead>
+        <tbody id="riderBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: PAYOUTS ══════ -->
+  <div class="page" id="page-payouts">
+    <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Disbursed Today</div>
+        <div class="kpi-val clr-green">₹89,400</div>
+        <div class="kpi-delta" style="color:var(--green)">3 trigger events</div>
+        <div class="accent-bar" style="background:linear-gradient(90deg,var(--green),var(--teal))"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Processing Time</div>
+        <div class="kpi-val clr-cyan">4.2s</div>
+        <div class="kpi-delta" style="color:var(--cyan)">Fully automated</div>
+        <div class="accent-bar" style="background:linear-gradient(90deg,var(--cyan),var(--blue))"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pending Queue</div>
+        <div class="kpi-val clr-amber">147</div>
+        <div class="kpi-delta" style="color:var(--text-muted)">Processing…</div>
+        <div class="accent-bar" style="background:linear-gradient(90deg,var(--amber),var(--orange))"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💸 Payout Ledger</div>
+      <div class="card-sub">All parametric disbursements · Auto-sorted by time</div>
+      <table class="data-table">
+        <thead><tr><th>Ref</th><th>Rider</th><th>Platform</th><th>Trigger</th><th>Amount</th><th>Time</th><th>Status</th></tr></thead>
+        <tbody id="payoutTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: ML PRICING ══════ -->
+  <div class="page" id="page-pricing">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div>
+        <h2 style="font-family:var(--display);font-size:16px;font-weight:800;">ML Dynamic Pricing Engine</h2>
+        <p style="font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:2px;">Hyper-local risk factors · Zone waterlog history · Predictive weather ML</p>
+      </div>
+      <div class="feature-badge" style="margin-left:auto;">✦ AI Pricing Model</div>
+    </div>
+    <div class="row g-2">
+      <div class="card">
+        <div class="card-title">🧠 Base Premium: ₹47/week</div>
+        <div class="card-sub">Dynamic adjustments applied below</div>
+        <div id="pricingFactors" style="margin-top:8px;"></div>
+        <div style="margin-top:16px;padding:14px;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(20,184,166,0.05));border:1px solid rgba(16,185,129,0.2);border-radius:12px;">
+          <div style="font-size:11px;color:var(--text-muted);font-family:var(--mono);">FINAL PREMIUM (Andheri West · High Risk)</div>
+          <div style="font-family:var(--display);font-size:28px;font-weight:800;color:var(--green-bright);margin-top:4px;">₹<span id="finalPremium">52</span>/week</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">+₹5 risk surcharge · Zone H-3 waterlog history factor applied</div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title">📊 Zone Risk Matrix</div>
+          <div class="card-sub">Historical waterlog + current weather ML</div>
+          <table class="data-table">
+            <thead><tr><th>Zone</th><th>Risk Score</th><th>Premium</th><th>Adj.</th></tr></thead>
+            <tbody id="riskMatrix"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">📈 ML Model Performance</div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:11px;">
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Model Version</span><span style="font-family:var(--mono);color:var(--indigo-bright);">KAVACH-ML v2.1</span></div>
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Training Data</span><span style="font-family:var(--mono);">18 months · 2.4M rides</span></div>
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Prediction Accuracy</span><span style="font-family:var(--mono);color:var(--green);">91.7%</span></div>
+            <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="color:var(--text-muted)">Last Retrained</span><span style="font-family:var(--mono);">2 days ago</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: CONFIG ══════ -->
+  <div class="page" id="page-config">
+    <div style="max-width:680px;">
+      <div class="card">
+        <div style="font-size:15px;font-family:var(--display);font-weight:800;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);">⚙️ AI Configuration</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-dim);">🌧️ Weather Triggers</div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:600;">Critical Rain</div><div style="font-size:11px;color:var(--text-muted);">Triggers ₹500 payout</div></div><div style="display:flex;align-items:center;gap:6px;"><input class="cfg-input" value="20" id="cfg_rain_crit"> <span style="font-size:11px;color:var(--text-muted);">mm/hr</span></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:600;">Warning Rain</div><div style="font-size:11px;color:var(--text-muted);">Triggers ₹150 payout</div></div><div style="display:flex;align-items:center;gap:6px;"><input class="cfg-input" value="12" id="cfg_rain_warn"> <span style="font-size:11px;color:var(--text-muted);">mm/hr</span></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:600;">AQI Critical</div><div style="font-size:11px;color:var(--text-muted);">Air quality trigger</div></div><input class="cfg-input" value="300" id="cfg_aqi"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;"><div><div style="font-size:13px;font-weight:600;">Wind Warning</div><div style="font-size:11px;color:var(--text-muted);">High wind trigger</div></div><div style="display:flex;align-items:center;gap:6px;"><input class="cfg-input" value="40" id="cfg_wind"> <span style="font-size:11px;color:var(--text-muted);">km/h</span></div></div>
+        </div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-dim);">🌐 Swarm Engine</div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:600;">Cluster Radius</div><div style="font-size:11px;color:var(--text-muted);">GPS cluster detection radius</div></div><div style="display:flex;align-items:center;gap:6px;"><input class="cfg-input" value="500" id="cfg_swarm_r"> <span style="font-size:11px;color:var(--text-muted);">meters</span></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:600;">Min Stalled Riders</div><div style="font-size:11px;color:var(--text-muted);">Threshold to trigger payout</div></div><input class="cfg-input" value="15" id="cfg_swarm_min"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;"><div><div style="font-size:13px;font-weight:600;">Time-Loss Payout</div><div style="font-size:11px;color:var(--text-muted);">Per rider in cluster</div></div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;color:var(--text-muted);">₹</span><input class="cfg-input" value="250" id="cfg_swarm_pay"></div></div>
+        </div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-dim);">📡 Crash Detection</div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:600;">Pothole G-Force</div></div><div style="display:flex;align-items:center;gap:6px;"><input class="cfg-input" value="1.8" id="cfg_g_pot"> <span style="font-size:11px;color:var(--text-muted);">G</span></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;"><div><div style="font-size:13px;font-weight:600;">Crash G-Force</div></div><div style="display:flex;align-items:center;gap:6px;"><input class="cfg-input" value="5.0" id="cfg_g_crash"> <span style="font-size:11px;color:var(--text-muted);">G</span></div></div>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center;padding:12px;" onclick="saveConfig()">💾 Save &amp; Apply Configuration</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- RIDER MODAL -->
+<div class="modal-overlay" id="riderModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('riderModal').classList.remove('open')">✕</button>
+    <div style="font-family:var(--display);font-size:18px;font-weight:800;margin-bottom:2px;" id="mName"></div>
+    <div style="font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-bottom:20px;" id="mId"></div>
+    <div id="mContent"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+const ZONES = {
+  Mumbai:[
+    {name:'Andheri West',rain:24,aqi:142,wind:18,riders:412,status:'critical',swarm:'CLUSTER'},
+    {name:'Bandra East',rain:2,aqi:120,wind:8,riders:285,status:'normal',swarm:'—'},
+    {name:'Kurla',rain:15,aqi:198,wind:22,riders:337,status:'warning',swarm:'SLOW'},
+    {name:'Dadar',rain:8,aqi:155,wind:12,riders:201,status:'normal',swarm:'—'},
+    {name:'Malad West',rain:22,aqi:245,wind:30,riders:178,status:'critical',swarm:'CLUSTER'},
+    {name:'Thane',rain:0,aqi:88,wind:6,riders:156,status:'normal',swarm:'—'},
+  ],
+  Bengaluru:[
+    {name:'Koramangala',rain:18,aqi:160,wind:25,riders:510,status:'warning',swarm:'SLOW'},
+    {name:'Whitefield',rain:3,aqi:95,wind:10,riders:320,status:'normal',swarm:'—'},
+    {name:'HSR Layout',rain:26,aqi:210,wind:35,riders:290,status:'critical',swarm:'CLUSTER'},
+    {name:'Indiranagar',rain:5,aqi:108,wind:12,riders:380,status:'normal',swarm:'—'},
+  ],
+  Delhi:[
+    {name:'Connaught Place',rain:0,aqi:310,wind:8,riders:450,status:'critical',swarm:'—'},
+    {name:'Lajpat Nagar',rain:1,aqi:285,wind:10,riders:360,status:'warning',swarm:'SLOW'},
+    {name:'Noida Sec 62',rain:0,aqi:195,wind:6,riders:280,status:'normal',swarm:'—'},
+  ],
+  Hyderabad:[
+    {name:'Hitech City',rain:12,aqi:130,wind:20,riders:340,status:'warning',swarm:'SLOW'},
+    {name:'Ameerpet',rain:4,aqi:100,wind:8,riders:270,status:'normal',swarm:'—'},
+  ],
+  Chennai:[
+    {name:'T Nagar',rain:30,aqi:110,wind:40,riders:290,status:'critical',swarm:'CLUSTER'},
+    {name:'Anna Nagar',rain:6,aqi:88,wind:15,riders:210,status:'normal',swarm:'—'},
+  ],
+  Pune:[
+    {name:'Kothrud',rain:14,aqi:140,wind:22,riders:180,status:'warning',swarm:'SLOW'},
+    {name:'Wakad',rain:2,aqi:95,wind:9,riders:145,status:'normal',swarm:'—'},
+  ]
+};
+
+const FRAUD_ALERTS = [
+  {id:'ZM-9921',type:'Multi-Platform Login',sev:'critical',desc:'Rider active on Zomato during Swiggy payout claim. Cross-platform activity detected within 30-min window.',time:'14:32:11',amt:'₹500'},
+  {id:'SW-1022',type:'GPS Geofence Mismatch',sev:'high',desc:'Claimed disruption in Andheri West, GPS shows Navi Mumbai (23km away). Outside 500m tolerance.',time:'13:45:07',amt:'₹150'},
+  {id:'BL-3341',type:'Velocity Anomaly',sev:'medium',desc:'Rider claimed 3 separate trigger payouts in 4 hours across 3 different zones. Statistical outlier.',time:'11:20:44',amt:'₹1,200'},
+  {id:'ZM-7712',type:'Device Fingerprint Change',sev:'low',desc:'New device logged 15 min before trigger event. Previous device not seen for 8 days.',time:'09:10:22',amt:'₹150'},
+];
+
+const RIDERS = [
+  {id:'SW-0011',name:'Arjun Sharma',platform:'Swiggy',zone:'Andheri West',claims:3,premium:282,risk:'High',status:'active'},
+  {id:'ZM-0142',name:'Priya Nair',platform:'Zomato',zone:'Bandra East',claims:1,premium:188,risk:'Low',status:'active'},
+  {id:'BL-0233',name:'Mohan Das',platform:'Blinkit',zone:'Kurla',claims:2,premium:235,risk:'Medium',status:'active'},
+  {id:'SW-0044',name:'Keerthi R',platform:'Swiggy',zone:'Dadar',claims:0,premium:94,risk:'Low',status:'active'},
+  {id:'ZM-9921',name:'Vijay Kumar',platform:'Zomato',zone:'Malad West',claims:5,premium:470,risk:'Critical',status:'flagged'},
+  {id:'SW-1022',name:'Roshni Mehta',platform:'Swiggy',zone:'Thane',claims:2,premium:188,risk:'High',status:'flagged'},
+  {id:'BL-0511',name:'Anand Pillai',platform:'Blinkit',zone:'Andheri West',claims:1,premium:141,risk:'Medium',status:'active'},
+  {id:'ZM-0602',name:'Sunita Rao',platform:'Zomato',zone:'Kurla',claims:4,premium:376,risk:'Medium',status:'active'},
+  {id:'SW-0713',name:'Deepak Singh',platform:'Swiggy',zone:'Bandra East',claims:0,premium:47,risk:'Low',status:'inactive'},
+  {id:'BL-3341',name:'Farhan Qureshi',platform:'Blinkit',zone:'Dadar',claims:8,premium:752,risk:'Critical',status:'flagged'},
+  {id:'ZM-0814',name:'Lakshmi Devi',platform:'Zomato',zone:'Malad West',claims:2,premium:188,risk:'Low',status:'active'},
+  {id:'SW-0915',name:'Ravi Patil',platform:'Swiggy',zone:'Thane',claims:1,premium:94,risk:'Low',status:'active'},
+];
+
+const PAYOUTS = [
+  {ref:'TXN-8821',rider:'SW-0011',name:'Arjun Sharma',platform:'Swiggy',trigger:'Rain ≥20mm',amt:'₹500',time:'14:32:05',status:'success'},
+  {ref:'TXN-8820',rider:'BL-0511',name:'Anand Pillai',platform:'Blinkit',trigger:'Rain ≥20mm',amt:'₹500',time:'14:31:58',status:'success'},
+  {ref:'TXN-8819',rider:'ZM-0142',name:'Priya Nair',platform:'Zomato',trigger:'Rain ≥12mm',amt:'₹150',time:'13:10:22',status:'success'},
+  {ref:'TXN-8818',rider:'BL-0233',name:'Mohan Das',platform:'Blinkit',trigger:'AQI ≥300',amt:'₹500',time:'12:45:11',status:'success'},
+  {ref:'TXN-8817',rider:'ZM-0602',name:'Sunita Rao',platform:'Zomato',trigger:'Rain ≥12mm',amt:'₹150',time:'11:20:03',status:'success'},
+  {ref:'TXN-8816',rider:'SW-0915',name:'Ravi Patil',platform:'Swiggy',trigger:'Swarm Cluster',amt:'₹250',time:'10:05:44',status:'pending'},
+  {ref:'TXN-8815',rider:'ZM-9921',name:'Vijay Kumar',platform:'Zomato',trigger:'Rain ≥20mm',amt:'₹500',time:'09:55:31',status:'held'},
+];
+
+const TRIGGER_DEFS = [
+  {name:'Heavy Rainfall',icon:'🌧️',api:'OpenWeatherMap',cond:'rain ≥ 20 mm/hr',pay:'₹500',on:true},
+  {name:'Moderate Rainfall',icon:'🌦️',api:'OpenWeatherMap',cond:'rain ≥ 12 mm/hr',pay:'₹150',on:true},
+  {name:'Severe AQI',icon:'😷',api:'AQI-India',cond:'AQI ≥ 300',pay:'₹500',on:true},
+  {name:'High Wind',icon:'💨',api:'OpenWeatherMap',cond:'wind ≥ 40 km/h',pay:'₹150',on:true},
+  {name:'Swarm Gridlock',icon:'🌐',api:'GPS Telemetry',cond:'15+ riders stalled 20min',pay:'₹250',on:true},
+  {name:'Crash/Pothole',icon:'📡',api:'Accelerometer',cond:'G-force ≥ 1.8G',pay:'₹200-1500',on:true},
+  {name:'Flood Alert',icon:'🌊',api:'NDRF-Alerts',cond:'Level 2+ warning',pay:'₹500',on:false},
+  {name:'Civil Disruption',icon:'🚧',api:'NewsAPI',cond:'Protest/bandh in zone',pay:'₹150',on:false},
+];
+
+const API_SOURCES = [
+  {name:'OpenWeatherMap',url:'api.openweathermap.org',status:'live',lat:'95ms',calls:1240},
+  {name:'AQI-India',url:'api.waqi.info',status:'live',lat:'140ms',calls:890},
+  {name:'NewsAPI',url:'newsapi.org',status:'warn',lat:'320ms',calls:112},
+  {name:'GPS Telemetry',url:'internal.kafka',status:'live',lat:'12ms',calls:48200},
+  {name:'PayFast',url:'payments.internal',status:'live',lat:'55ms',calls:312},
+  {name:'NDRF-Alerts',url:'ndrf.gov.in/api',status:'error',lat:'—',calls:0},
+];
+
+const WEEKLY = [
+  {w:'W1',gwp:420,claims:68},{w:'W2',gwp:385,claims:55},{w:'W3',gwp:510,claims:92},
+  {w:'W4',gwp:448,claims:71},{w:'W5',gwp:520,claims:88},{w:'W6',gwp:490,claims:95},
+  {w:'W7',gwp:565,claims:102},{w:'W8',gwp:586,claims:112},
+];
+
+const SENSOR_LOG = [
+  {t:'14:52:01',rider:'SW-0011',event:'Pothole',g:'2.1G',claim:'₹200',status:'success'},
+  {t:'12:33:44',rider:'ZM-0142',event:'Hard Brake',g:'1.4G',claim:'—',status:'normal'},
+  {t:'10:18:22',rider:'BL-0233',event:'Crash Detected',g:'6.2G',claim:'₹1,500',status:'success'},
+  {t:'09:05:11',rider:'SW-0044',event:'Pothole',g:'1.9G',claim:'₹200',status:'success'},
+];
+
+const STORM_CARDS = [
+  {zone:'Andheri West',eta:'18 min',rain:'28mm/hr',wind:'45km/h',sev:'urgent',riders:47,bonus:'₹50'},
+  {zone:'Kurla',eta:'35 min',rain:'18mm/hr',wind:'30km/h',sev:'moderate',riders:33,bonus:'₹50'},
+  {zone:'Malad West',eta:'52 min',rain:'22mm/hr',wind:'38km/h',sev:'moderate',riders:28,bonus:'₹50'},
+];
+
+const CLUSTER_LOG = [
+  {t:'14:20',zone:'Andheri West',riders:23,dur:'22min',pay:'₹5,750',status:'processed'},
+  {t:'11:45',zone:'Kurla',riders:18,dur:'26min',pay:'₹4,500',status:'processed'},
+  {t:'09:30',zone:'Malad West',riders:31,dur:'20min',pay:'₹7,750',status:'processed'},
+];
+
+const PRICING_FACTORS = [
+  {label:'Zone Waterlog History',val:'+₹8',pct:70,clr:'var(--red)'},
+  {label:'Current Rainfall Trend',val:'+₹5',pct:55,clr:'var(--amber)'},
+  {label:'AQI Level (120)',val:'+₹2',pct:25,clr:'var(--orange)'},
+  {label:'Claim History (3 claims)',val:'+₹4',pct:45,clr:'var(--red)'},
+  {label:'Safe Zone Bonus',val:'-₹3',pct:30,clr:'var(--green)'},
+  {label:'Long-term Rider (1yr+)',val:'-₹3',pct:30,clr:'var(--teal)'},
+  {label:'Platform Trust Score',val:'-₹1',pct:12,clr:'var(--cyan)'},
+];
+
+const RISK_MATRIX = [
+  {zone:'Andheri West',score:87,premium:54,adj:'+₹7'},
+  {zone:'Kurla',score:72,premium:51,adj:'+₹4'},
+  {zone:'Bandra East',score:28,premium:44,adj:'-₹3'},
+  {zone:'Malad West',score:81,premium:53,adj:'+₹6'},
+  {zone:'Dadar',score:45,premium:47,adj:'₹0'},
+];
+
+// ══════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════
+const $ = id => document.getElementById(id);
+
+function pill(status) {
+  const m = {
+    critical:'pill-red',warning:'pill-amber',normal:'pill-green',
+    active:'pill-green',inactive:'pill-blue',flagged:'pill-red',
+    success:'pill-green',pending:'pill-amber',held:'pill-red',
+    processed:'pill-green',processing:'pill-amber',
+    live:'pill-green',warn:'pill-amber',error:'pill-red',
+    CLUSTER:'pill-red',SLOW:'pill-amber',High:'pill-amber',Low:'pill-green',Medium:'pill-cyan',Critical:'pill-red',
+  };
+  const c = m[status]||'pill-indigo';
+  return `<span class="pill ${c}">${status}</span>`;
+}
+
+let toastTimer;
+function showToast(msg, type='') {
+  const t = $('toast');
+  t.textContent = msg; t.className = `toast ${type}`;
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.style.display='none'; }, 3000);
+}
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+const PAGE_META = {
+  analytics:['Analytics Dashboard','Real-time parametric insurance intelligence · Kavach.ai'],
+  swarm:['Swarm Intelligence Engine','GPS telemetry clustering · auto gridlock payouts'],
+  routing:['Predictive Pre-Routing AI','Storm prediction → proactive relocation bonuses'],
+  crash:['Crash & Pothole Detector','Edge accelerometer telemetry · zero-touch micro-claims'],
+  triggers:['Parametric Triggers','5 active conditions · automated event processing'],
+  fraud:['Fraud AI Monitor','Multi-model anomaly detection · case management'],
+  riders:['Rider Database','All gig workers · ML risk scores · claim history'],
+  payouts:['Payout Ledger','Zero-touch parametric disbursements'],
+  pricing:['ML Dynamic Pricing','Hyper-local risk factors · premium adjustments'],
+  config:['AI Configuration','Thresholds · payout models · swarm settings'],
+};
+
+function navigate(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  $('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  const [title,sub] = PAGE_META[id]||[id,''];
+  $('pageTitle').textContent = title;
+  $('pageSub').textContent = sub;
+}
+
+// ══════════════════════════════════════════
+//  RENDER FUNCTIONS
+// ══════════════════════════════════════════
+function renderZoneTable() {
+  const city = $('citySelect').value;
+  const data = ZONES[city]||[];
+  $('cityName').textContent = city;
+  $('swarmCity').textContent = city;
+  $('routingCity').textContent = city;
+  let h = '';
+  data.forEach(z => {
+    const aq = z.aqi > 200 ? 'color:var(--amber)' : '';
+    h += `<tr>
+      <td><b>${z.name}</b></td>
+      <td style="font-family:var(--mono);font-size:11px;">${z.rain} mm</td>
+      <td style="font-family:var(--mono);font-size:11px;${aq}">${z.aqi}</td>
+      <td style="font-family:var(--mono);font-weight:700;">${z.riders}</td>
+      <td>${z.swarm!=='—'?pill(z.swarm):`<span style="color:var(--text-muted);font-size:10px;">—</span>`}</td>
+      <td>${pill(z.status)}</td>
+      <td>${z.status==='critical'?`<button class="btn btn-xs btn-ghost-red" onclick="showToast('Payout queued for ${z.name} — ${z.riders} riders ✓')">Trigger</button>`:`<span style="font-size:10px;color:var(--text-muted)">Monitor</span>`}</td>
+    </tr>`;
+  });
+  $('zoneBody').innerHTML = h;
+}
+
+function renderFraudMini() {
+  let h = '';
+  FRAUD_ALERTS.slice(0,2).forEach(f => {
+    h += `<div class="fraud-item ${f.sev}" style="margin-bottom:8px;">
+      <div style="font-size:12px;font-weight:700;margin-bottom:2px;">${f.type}</div>
+      <div style="font-size:10px;color:var(--text-dim);font-family:var(--mono);">${f.id} · ${f.time} · ${f.amt}</div>
+    </div>`;
+  });
+  $('fraudMini').innerHTML = h;
+}
+
+function renderFraudFull() {
+  let h = '';
+  FRAUD_ALERTS.forEach(f => {
+    const sc = {critical:'pill-red',high:'pill-amber',medium:'pill-cyan',low:'pill-blue'}[f.sev]||'pill-indigo';
+    h += `<div class="fraud-item ${f.sev}" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:13px;font-weight:700;">${f.type}</div>
+        <span class="pill ${sc}">${f.sev.toUpperCase()}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:6px;">Rider: <b>${f.id}</b> · ${f.time} · Blocked: <b style="color:var(--red)">${f.amt}</b></div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">${f.desc}</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-xs btn-ghost-red" onclick="showToast('Rider ${f.id} suspended','critical')">Suspend</button>
+        <button class="btn btn-xs btn-ghost-amber" onclick="showToast('Case ${f.id} sent to investigator','warn')">Investigate</button>
+        <button class="btn btn-xs btn-ghost-green" onclick="showToast('Case ${f.id} cleared ✓')">Clear</button>
+      </div>
+    </div>`;
+  });
+  $('fraudFull').innerHTML = h;
+}
+
+function renderPayoutMini() {
+  let h = '';
+  PAYOUTS.slice(0,4).forEach(p => {
+    h += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;">
+      <div><div style="font-weight:600;">${p.name}</div><div style="color:var(--text-muted);font-family:var(--mono);font-size:10px;">${p.trigger}</div></div>
+      <div style="text-align:right;"><div style="font-family:var(--mono);font-weight:700;color:var(--green-bright);">${p.amt}</div><div style="font-size:10px;color:var(--text-muted);">${p.time}</div></div>
+    </div>`;
+  });
+  $('payoutMini').innerHTML = h;
+}
+
+function renderThresholds() {
+  const data = [
+    ['Rain (critical)','≥ 20mm/hr','var(--red)'],
+    ['Rain (warning)','≥ 12mm/hr','var(--amber)'],
+    ['AQI critical','≥ 300','var(--red)'],
+    ['Wind warning','≥ 40 km/h','var(--amber)'],
+    ['Swarm stall','15+ riders · 20min','var(--indigo-bright)'],
+    ['Crash G-force','≥ 5.0G','var(--rose)'],
+  ];
+  let h = '';
+  data.forEach(([k,v,c]) => {
+    h += `<div style="font-size:11px;display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
+      <span style="color:var(--text-muted);">${k}</span>
+      <span style="font-family:var(--mono);color:${c};font-weight:600;">${v}</span>
+    </div>`;
+  });
+  $('thresholdList').innerHTML = h;
+}
+
+function renderWeeklyChart() {
+  const max = Math.max(...WEEKLY.map(d=>d.gwp));
+  let h = '';
+  WEEKLY.forEach((d,i) => {
+    const gwpH = Math.round((d.gwp/max)*95);
+    const clH = Math.round((d.claims/max)*95);
+    const forecast = i >= 6;
+    h += `<div class="bc-wrap">
+      <div class="bc-bars">
+        <div class="bc-bar" style="height:${gwpH}px;background:${forecast?'rgba(99,102,241,0.4)':'linear-gradient(180deg,var(--indigo),rgba(99,102,241,0.3))'}" title="GWP ₹${d.gwp}K"></div>
+        <div class="bc-bar" style="height:${clH}px;background:${forecast?'rgba(239,68,68,0.3)':'linear-gradient(180deg,var(--red),rgba(239,68,68,0.3))'}" title="Claims ₹${d.claims}K"></div>
+      </div>
+      <div class="bc-label">${d.w}</div>
+    </div>`;
+  });
+  $('weeklyChart').innerHTML = h;
+}
+
+function renderSparkline() {
+  const data = [8200,9100,8750,9400,10200,9800,10900,11400,10800,11200,11800,12100,11900,12482];
+  const max = Math.max(...data), min = Math.min(...data);
+  const W = 200, H = 50;
+  const pts = data.map((v,i) => `${(i/(data.length-1))*W},${H-((v-min)/(max-min))*(H-6)-3}`).join(' ');
+  $('sparkSvg').innerHTML = `
+    <defs>
+      <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#6366f1" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <polygon points="${pts} ${W},${H} 0,${H}" fill="url(#sg)"/>
+    <polyline points="${pts}" fill="none" stroke="#818cf8" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="${W}" cy="${H-((data[13]-min)/(max-min))*(H-6)-3}" r="3" fill="var(--cyan)"/>
+  `;
+}
+
+function renderTriggers() {
+  let h = '';
+  TRIGGER_DEFS.forEach((t,i) => {
+    const isNew = i>=4;
+    h += `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:20px;width:24px;text-align:center;">${t.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;">
+          ${t.name}
+          ${isNew?'<span class="feature-badge" style="font-size:8px;">✦ NEW</span>':''}
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);font-family:var(--mono);">${t.cond} · Payout: ${t.pay}</div>
+      </div>
+      <div style="font-size:10px;font-family:var(--mono);color:var(--indigo-bright);background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.15);padding:3px 8px;border-radius:6px;">${t.api}</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:36px;height:20px;background:${t.on?'rgba(16,185,129,0.25)':'var(--surface3)'};border-radius:10px;border:1px solid ${t.on?'var(--green)':'var(--border2)'};position:relative;cursor:pointer;transition:all 0.2s;" onclick="this.dataset.on=this.dataset.on==='1'?'0':'1';this.style.background=this.dataset.on==='1'?'rgba(16,185,129,0.25)':'var(--surface3)';this.style.borderColor=this.dataset.on==='1'?'var(--green)':'var(--border2)';this.querySelector('.knob').style.left=this.dataset.on==='1'?'18px':'2px';this.querySelector('.knob').style.background=this.dataset.on==='1'?'var(--green)':'var(--text-muted)';showToast('Trigger '+(this.dataset.on==='1'?'enabled':'disabled')+': ${t.name}')" data-on="${t.on?'1':'0'}">
+          <div class="knob" style="position:absolute;top:2px;left:${t.on?'18px':'2px'};width:14px;height:14px;border-radius:50%;background:${t.on?'var(--green)':'var(--text-muted)'};transition:all 0.2s;"></div>
+        </div>
+        <span style="font-size:10px;color:var(--text-muted);font-family:var(--mono);">${t.on?'ON':'OFF'}</span>
+      </div>
+    </div>`;
+  });
+  $('triggerList').innerHTML = h;
+
+  $('triggerLog').innerHTML = [
+    {t:'14:32:01',z:'Andheri West',tr:'Rain 24mm/hr',r:412,a:'₹2,06,000',s:'processed'},
+    {t:'13:10:15',z:'Kurla',tr:'Rain 15mm/hr',r:337,a:'₹50,550',s:'processed'},
+    {t:'12:20:08',z:'Andheri West',tr:'Swarm Cluster',r:23,a:'₹5,750',s:'processed'},
+    {t:'09:45:22',z:'Malad West',tr:'AQI 245',r:178,a:'₹26,700',s:'processing'},
+  ].map(x=>`<tr>
+    <td style="font-family:var(--mono);font-size:10px;">${x.t}</td>
+    <td><b>${x.z}</b></td>
+    <td style="font-size:11px;color:var(--text-dim);">${x.tr}</td>
+    <td style="font-family:var(--mono);">${x.r}</td>
+    <td style="font-family:var(--mono);color:var(--green-bright);font-weight:700;">${x.a}</td>
+    <td>${pill(x.s)}</td>
+  </tr>`).join('');
+
+  $('apiSources').innerHTML = API_SOURCES.map(a=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <div><div style="font-weight:600;">${a.name}</div><div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);">${a.url} · ${a.calls.toLocaleString()} calls/day</div></div>
+      <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">${pill(a.status)}<span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">${a.lat}</span></div>
+    </div>`).join('');
+}
+
+function renderRiders() {
+  const q = ($('riderSearch')?.value||'').toLowerCase();
+  const filtered = RIDERS.filter(r=>r.name.toLowerCase().includes(q)||r.id.toLowerCase().includes(q));
+  $('riderCount').textContent = `${filtered.length} riders`;
+  $('riderBody').innerHTML = filtered.map(r=>`<tr>
+    <td style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">${r.id}</td>
+    <td><b>${r.name}</b></td>
+    <td style="font-size:11px;">${r.platform}</td>
+    <td style="font-size:11px;">${r.zone}</td>
+    <td style="font-family:var(--mono);text-align:center;">${r.claims}</td>
+    <td style="font-family:var(--mono);color:var(--green-bright);">₹${r.premium}</td>
+    <td>${pill(r.risk)}</td>
+    <td>${pill(r.status)}</td>
+    <td><button class="btn btn-xs btn-ghost-indigo" onclick='openRiderModal(${JSON.stringify(r)})'>View</button></td>
+  </tr>`).join('');
+}
+
+function openRiderModal(r) {
+  $('mName').textContent = r.name;
+  $('mId').textContent = `${r.id} · ${r.platform}`;
+  $('mContent').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      ${[['Zone',r.zone],['Status',r.status.toUpperCase()],['ML Risk Score',r.risk],['Total Claims',r.claims],['Premium Paid','₹'+r.premium],['Avg Premium/Week','₹47'],['Account Created','Jan 2024'],['KYC Status','✓ VERIFIED']].map(([k,v])=>`
+      <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;">
+        <span style="color:var(--text-muted);">${k}</span>
+        <span style="font-weight:600;font-family:var(--mono);">${v}</span>
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn btn-sm btn-ghost-indigo" onclick="showToast('Viewing claim history for ${r.id}')">Claim History</button>
+      <button class="btn btn-sm btn-ghost-red" onclick="showToast('Rider ${r.id} suspended','critical');document.getElementById('riderModal').classList.remove('open')">Suspend</button>
+    </div>`;
+  $('riderModal').classList.add('open');
+}
+
+function renderPayouts() {
+  $('payoutTable').innerHTML = PAYOUTS.map(p=>`<tr>
+    <td style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">${p.ref}</td>
+    <td><div style="font-weight:600;">${p.name}</div><div style="font-size:10px;font-family:var(--mono);color:var(--text-muted);">${p.rider}</div></td>
+    <td style="font-size:11px;">${p.platform}</td>
+    <td style="font-size:11px;color:var(--text-dim);">${p.trigger}</td>
+    <td style="font-family:var(--mono);font-weight:700;color:var(--green-bright);">${p.amt}</td>
+    <td style="font-family:var(--mono);font-size:11px;">${p.time}</td>
+    <td>${pill(p.status)}</td>
+  </tr>`).join('');
+}
+
+function renderSensorLog() {
+  $('sensorLog').innerHTML = SENSOR_LOG.map(s=>`<tr>
+    <td style="font-family:var(--mono);font-size:10px;">${s.t}</td>
+    <td style="font-size:11px;">${s.rider}</td>
+    <td style="font-weight:600;">${s.event}</td>
+    <td style="font-family:var(--mono);color:${parseFloat(s.g)>4?'var(--red)':parseFloat(s.g)>1.8?'var(--amber)':'var(--text-dim)'};">${s.g}</td>
+    <td style="font-family:var(--mono);color:var(--green-bright);font-weight:700;">${s.claim}</td>
+    <td>${pill(s.status)}</td>
+  </tr>`).join('');
+}
+
+function renderPricing() {
+  let h = '';
+  PRICING_FACTORS.forEach(f => {
+    const pos = f.val.startsWith('+');
+    h += `<div class="pricing-factor">
+      <div class="factor-label">${f.label}</div>
+      <div class="factor-bar-wrap"><div class="factor-bar" style="width:${f.pct}%;background:${f.clr};"></div></div>
+      <div class="factor-val" style="color:${pos?'var(--red)':'var(--green-bright)'};">${f.val}</div>
+    </div>`;
+  });
+  $('pricingFactors').innerHTML = h;
+  $('riskMatrix').innerHTML = RISK_MATRIX.map(r=>`<tr>
+    <td style="font-size:11px;"><b>${r.zone}</b></td>
+    <td><div style="width:100%;height:4px;background:var(--surface3);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${r.score}%;background:${r.score>70?'var(--red)':r.score>50?'var(--amber)':'var(--green)'};border-radius:4px;"></div></div><span style="font-size:10px;font-family:var(--mono);color:var(--text-muted);">${r.score}/100</span></td>
+    <td style="font-family:var(--mono);color:var(--green-bright);font-weight:700;">₹${r.premium}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:${r.adj.startsWith('+')?'var(--red)':r.adj==='₹0'?'var(--text-muted)':'var(--green)'};">${r.adj}</td>
+  </tr>`).join('');
+}
+
+function renderStorms() {
+  $('stormCards').innerHTML = STORM_CARDS.map(s=>`
+    <div class="route-card ${s.sev==='urgent'?'urgent':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <div style="font-weight:700;font-size:13px;">${s.sev==='urgent'?'🔴':'🟡'} ${s.zone}</div>
+          <div style="font-size:10px;color:var(--text-muted);font-family:var(--mono);">${s.rain} predicted · Wind ${s.wind}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="route-timer">${s.eta}</div>
+          <div style="font-size:9px;color:var(--text-muted);font-family:var(--mono);">TO IMPACT</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:11px;color:var(--text-muted);">${s.riders} riders notified → safe zone</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="route-bonus">${s.bonus}</div>
+          <div style="font-size:10px;color:var(--text-muted);">relocation bonus</div>
+        </div>
+      </div>
+    </div>`).join('');
+  $('notifList').innerHTML = [
+    {n:'Arjun Sharma',z:'Bandra East',t:'14:14'},
+    {n:'Mohan Das',z:'Thane',t:'14:13'},
+    {n:'Priya Nair',z:'Bandra East',t:'14:13'},
+    {n:'Keerthi R',z:'Dadar',t:'14:12'},
+    {n:'Anand Pillai',z:'Bandra East',t:'14:12'},
+  ].map(n=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;">
+    <div><div style="font-weight:600;">${n.n}</div><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono);">→ ${n.z}</div></div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">${n.t} IST</div>
+  </div>`).join('');
+
+  // simple route map dots
+  const c = $('routeMapContent');
+  if(c) {
+    c.innerHTML = '';
+    const zones = [
+      {x:'25%',y:'35%',label:'⚠ Storm Zone',clr:'var(--red)',size:'80px'},
+      {x:'60%',y:'25%',label:'✓ Safe Zone',clr:'var(--green)',size:'60px'},
+      {x:'65%',y:'65%',label:'✓ Safe Zone',clr:'var(--green)',size:'55px'},
+    ];
+    zones.forEach(z=>{
+      const d = document.createElement('div');
+      d.style.cssText = `position:absolute;left:${z.x};top:${z.y};transform:translate(-50%,-50%);width:${z.size};height:${z.size};border-radius:50%;background:${z.clr === 'var(--red)' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)'};border:2px solid ${z.clr};display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--mono);color:${z.clr};text-align:center;font-weight:700;animation:clusterPulse 2s ease-out infinite;`;
+      d.textContent = z.label;
+      c.appendChild(d);
+    });
+  }
+}
+
+function renderClusterLog() {
+  $('clusterLog').innerHTML = CLUSTER_LOG.map(c=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;">
+      <div>
+        <div style="font-weight:700;">${c.zone}</div>
+        <div style="font-size:10px;color:var(--text-muted);font-family:var(--mono);">${c.t} · ${c.riders} riders · ${c.dur}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:var(--mono);font-weight:700;color:var(--green-bright);">${c.pay}</div>
+        ${pill(c.status)}
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+//  SWARM MAP (animated GPS simulation)
+// ══════════════════════════════════════════
+const riders_data = [];
+let swarmInterval;
+
+function initSwarm() {
+  const map = $('swarmMap');
+  // Clear existing riders (keep grid)
+  map.querySelectorAll('.swarm-rider,.swarm-cluster,.cluster-alert,.map-label').forEach(e=>e.remove());
+  riders_data.length = 0;
+
+  // Generate riders
+  for(let i=0;i<80;i++) {
+    const speed = Math.random();
+    const type = speed < 0.15 ? 'stalled' : speed < 0.35 ? 'slow' : 'normal';
+    const r = {
+      el: document.createElement('div'),
+      x: 5 + Math.random()*90,
+      y: 5 + Math.random()*85,
+      dx: (Math.random()-0.5)*0.3,
+      dy: (Math.random()-0.5)*0.3,
+      type,
+    };
+    r.el.className = `swarm-rider ${type}`;
+    r.el.style.left = r.x+'%';
+    r.el.style.top = r.y+'%';
+    map.appendChild(r.el);
+    riders_data.push(r);
+  }
+
+  // Add cluster zone
+  const cluster = document.createElement('div');
+  cluster.className = 'swarm-cluster';
+  cluster.style.cssText = 'left:38%;top:30%;width:80px;height:80px;margin-left:-40px;margin-top:-40px;';
+  map.appendChild(cluster);
+
+  const alert = document.createElement('div');
+  alert.className = 'cluster-alert';
+  alert.style.cssText = 'left:46%;top:18%;';
+  alert.innerHTML = '🔴 Cluster Detected';
+  map.appendChild(alert);
+
+  // Labels
+  ['Andheri W','Kurla','Malad'].forEach((l,i)=>{
+    const lbl = document.createElement('div');
+    lbl.className = 'map-label';
+    lbl.textContent = l;
+    lbl.style.left = [12,55,72][i]+'%';
+    lbl.style.top = [62,45,20][i]+'%';
+    map.appendChild(lbl);
+  });
+
+  // Metrics
+  const total = riders_data.length;
+  const slow = riders_data.filter(r=>r.type==='stalled').length;
+  $('swarmTotal').textContent = total;
+  $('swarmSlow').textContent = slow;
+  $('swarmPaid').textContent = '₹18,000';
+
+  clearInterval(swarmInterval);
+  swarmInterval = setInterval(()=>{
+    riders_data.forEach(r => {
+      r.x = Math.max(2,Math.min(97,r.x + r.dx));
+      r.y = Math.max(2,Math.min(90,r.y + r.dy));
+      r.el.style.left = r.x+'%';
+      r.el.style.top = r.y+'%';
+    });
+  }, 500);
+}
+
+// ══════════════════════════════════════════
+//  CRASH SIMULATION
+// ══════════════════════════════════════════
+let gyroInterval;
+let inCrash = false;
+
+function updateSensors(g, x, y, z) {
+  const gv = $('gyroVal');
+  gv.textContent = g.toFixed(1)+'G';
+  gv.className = 'gyro-val'+(g>4?' danger':'');
+  const ax = $('axisX'), ay = $('axisY'), az = $('axisZ');
+  ax.style.width = x+'%'; ay.style.width = y+'%'; az.style.width = z+'%';
+  const cl = g>4?'critical':g>2?'high':'';
+  [ax,ay,az].forEach(a=>{ a.className='accel-fill'+( cl?' '+cl:''); });
+}
+
+function startSensorSim() {
+  let t = 0;
+  clearInterval(gyroInterval);
+  gyroInterval = setInterval(()=>{
+    if(inCrash) return;
+    t += 0.1;
+    const g = 0.3 + Math.sin(t)*0.2 + Math.random()*0.15;
+    updateSensors(g, 20+Math.sin(t)*10, 15+Math.cos(t)*8, 8+Math.sin(t*2)*4);
+  }, 300);
+}
+
+function simulateCrash() {
+  inCrash = true;
+  const steps = ['cs1','cs2','cs3','cs4','cs5'];
+  steps.forEach(s=>{ const el=$(s); if(el){el.classList.remove('done','active');} });
+  $(steps[0]).classList.add('active');
+
+  showToast('⚡ CRASH DETECTED — 6.2G spike!','critical');
+
+  // animate G-force spike
+  let peak = 0;
+  const ramp = setInterval(()=>{
+    peak = Math.min(peak+0.8, 6.2);
+    const x = 30+peak*10, y = 40+peak*8, z = 20+peak*15;
+    updateSensors(peak, Math.min(x,100), Math.min(y,100), Math.min(z,100));
+    if(peak>=6.2) clearInterval(ramp);
+  }, 80);
+
+  // step through claim flow
+  let si = 0;
+  const msgs = [
+    '🧠 AI verifying context…',
+    '🛡️ Fraud gate checking device fingerprint…',
+    '💸 Disbursing ₹1,500 to SW-0011…',
+    '📲 SMS & push notification sent!',
+  ];
+  const advance = setInterval(()=>{
+    if(si < steps.length-1) {
+      $(steps[si]).classList.remove('active');
+      $(steps[si]).classList.add('done');
+      si++;
+      $(steps[si]).classList.add('active');
+      if(si < msgs.length+1) showToast(msgs[si-1]);
+    } else {
+      $(steps[si]).classList.remove('active');
+      $(steps[si]).classList.add('done');
+      clearInterval(advance);
+      inCrash = false;
+      startSensorSim();
+      showToast('✓ ₹1,500 disbursed in 4.2s — Zero touch!');
+    }
+  }, 1200);
+}
+
+// ══════════════════════════════════════════
+//  CLOCK & REFRESH
+// ══════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  const ist = new Date(now.getTime()+(5.5*3600000));
+  const ts = ist.toISOString();
+  $('topTime').textContent = ts.substring(11,19)+' IST';
+  $('sideDate').textContent = ts.substring(0,10);
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function refreshCity() { renderZoneTable(); }
+function doRefresh() { renderZoneTable(); showToast('Live data refreshed from all APIs ✓'); }
+function saveConfig() { showToast('Configuration saved & applied to all engines ✓'); }
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+renderZoneTable();
+renderFraudMini();
+renderFraudFull();
+renderPayoutMini();
+renderThresholds();
+renderWeeklyChart();
+renderSparkline();
+renderTriggers();
+renderRiders();
+renderPayouts();
+renderSensorLog();
+renderPricing();
+renderStorms();
+renderClusterLog();
+initSwarm();
+startSensorSim();
+</script>
+</body>
+</html>

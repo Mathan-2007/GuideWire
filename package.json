@@ -1,0 +1,26 @@
+{
+  "name": "guidewire",
+  "version": "1.0.0",
+  "description": "AI-Powered Parametric Insurance Platform for Gig Workers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mathan-2007/GuideWire.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mathan-2007/GuideWire/issues"
+  },
+  "homepage": "https://github.com/Mathan-2007/GuideWire#readme",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "express": "^4.22.1"
+  }
+}

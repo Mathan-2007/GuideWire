@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIG-SHIELD Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&family=DM+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  body { background: #070d1a; color: #e2e8f0; font-family: 'DM Sans', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+  .login-box { background: #0d1726; padding: 40px; border-radius: 16px; border: 1px solid rgba(99,179,237,0.2); width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .logo { font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; color: #60a5fa; text-align: center; margin-bottom: 30px; letter-spacing: 2px; }
+  .tabs { display: flex; margin-bottom: 24px; border-bottom: 1px solid rgba(99,179,237,0.2); }
+  .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #94a3b8; font-weight: 700; transition: 0.3s; }
+  .tab.active { color: #3b82f6; border-bottom: 2px solid #3b82f6; }
+  input { width: 100%; padding: 14px; background: #111f35; border: 1px solid rgba(99,179,237,0.2); color: white; border-radius: 8px; margin-bottom:15px; outline: none; box-sizing: border-box; }
+  button { width: 100%; padding: 14px; background: linear-gradient(135deg, #3b82f6, #06b6d4); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+  #error-msg { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+  .demo-creds { margin-top: 20px; font-size: 12px; color: #64748b; text-align: center; background: #111f35; padding: 15px; border-radius: 8px; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <div class="logo">GIG-SHIELD</div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('admin')">Admin</div>
+    <div class="tab" onclick="switchTab('rider')">Rider</div>
+  </div>
+
+  <div id="admin-form">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+  </div>
+
+  <div id="rider-form" style="display:none;">
+    <input type="text" id="riderId" placeholder="Rider ID (e.g., SW-0011)">
+  </div>
+
+  <button onclick="handleLogin()">Secure Login</button>
+  <div id="error-msg">Invalid credentials</div>
+
+  <div class="demo-creds">
+    <b>Demo Credentials:</b><br>
+    Admin: kavin / kavin123<br>
+    Rider: SW-0011 or ZM-0142
+  </div>
+</div>
+
+<script>
+  let currentRole = 'admin';
+  function switchTab(role) {
+    currentRole = role;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('admin-form').style.display = role === 'admin' ? 'block' : 'none';
+    document.getElementById('rider-form').style.display = role === 'rider' ? 'block' : 'none';
+    document.getElementById('error-msg').style.display = 'none';
+  }
+
+  async function handleLogin() {
+    const payload = { role: currentRole };
+    if (currentRole === 'admin') {
+      payload.username = document.getElementById('username').value;
+      payload.password = document.getElementById('password').value;
+    } else {
+      payload.riderId = document.getElementById('riderId').value.toUpperCase();
+    }
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        if(currentRole === 'admin') localStorage.setItem('isAdmin', 'true');
+        window.location.href = data.redirect;
+      } else {
+        document.getElementById('error-msg').innerText = data.message;
+        document.getElementById('error-msg').style.display = 'block';
+      }
+    } catch(e) { alert("Backend Server is Offline. Please start Node.js server."); }
+  }
+</script>
+</body>
+</html>
